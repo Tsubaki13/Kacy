@@ -32,6 +32,7 @@ public:
 		class UCameraComponent* FirstPersonCam;
 
 private:
+	// the following methods are used to setup input by getting called from SetupPlayerInputComponent method
 	void MoveForward(float Amount);
 	void MoveRight(float Amount);
 	void LookUp(float Amount);
@@ -39,5 +40,6 @@ private:
 	void PerformJump();
 	void Interact();
 
-	USkeletalMeshComponent* SkelMesh;
+	USkeletalMeshComponent* SkelMesh; // a reference to the skeletal mesh
+	class UCppAnim_K53sc* AnimInstance; // a reference to the animation instance class, from which the animation blueprint inherits
 };

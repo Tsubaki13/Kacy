@@ -1,19 +1,19 @@
 // This game was designed and developed by OURTEAMNAME as the BA2 semester project for the summer semester 2019. OURTEAMNAME's members: Jann Albrecht (Designer). Patrick Handwerk (Programmer). Mohammed Najeeb Mshaweh (Programmer). Bjoern Roethig (3D Artist). Pauline Mueller (2D Artist).
 
-
 #include "Cpp_Ch_K53sc.h"
 #include "Classes/GameFramework/SpringArmComponent.h"
 #include "Classes/Camera/CameraComponent.h"
+#include "CppAnim_K53sc.h"
+#include "Classes/GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACpp_Ch_K53sc::ACpp_Ch_K53sc()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
-	SkelMesh = GetMesh();
+	PrimaryActorTick.bCanEverTick = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>("CameraBoom");
+	SkelMesh = GetMesh();
 	CameraBoom->SetupAttachment(SkelMesh);
 	CameraBoom->bUsePawnControlRotation = true;
 
@@ -26,7 +26,8 @@ ACpp_Ch_K53sc::ACpp_Ch_K53sc()
 void ACpp_Ch_K53sc::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	AnimInstance = Cast<UCppAnim_K53sc>(SkelMesh->GetAnimInstance());
 }
 
 // Called every frame
@@ -34,6 +35,20 @@ void ACpp_Ch_K53sc::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(AnimInstance && SkelMesh)
+	{
+		AnimInstance->Speed = AnimInstance->TryGetPawnOwner()->GetVelocity().Size();
+
+		AnimInstance->bIsFalling = ACharacter::GetCharacterMovement()->IsFalling();
+		UE_LOG(LogTemp, Warning, TEXT("speed: %f / %s"), AnimInstance->Speed, (AnimInstance->bIsFalling ? TEXT("is falling") : TEXT("is NOT falling")))
+	}
+	else
+	{
+		if(!SkelMesh)
+			UE_LOG(LogTemp, Warning, TEXT("SkelMesh ref missing"))
+		if(!AnimInstance)
+			UE_LOG(LogTemp, Warning, TEXT("AnimInstance ref missing"))
+	}
 }
 
 // Called to bind functionality to input
@@ -76,4 +91,5 @@ void ACpp_Ch_K53sc::PerformJump()
 
 void ACpp_Ch_K53sc::Interact()
 {
+
 }
