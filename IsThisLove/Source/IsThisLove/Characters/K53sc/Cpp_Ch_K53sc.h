@@ -26,4 +26,18 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BasicComponents")
+		class USpringArmComponent* CameraBoom;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BasicComponents")
+		class UCameraComponent* FirstPersonCam;
+
+private:
+	void MoveForward(float Amount);
+	void MoveRight(float Amount);
+	void LookUp(float Amount);
+	void Turn(float Amount);
+	void PerformJump();
+	void Interact();
+
+	USkeletalMeshComponent* SkelMesh;
 };
