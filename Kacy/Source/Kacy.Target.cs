@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class IsThisLoveTarget : TargetRules
+public class KacyTarget : TargetRules
 {
-	public IsThisLoveTarget(TargetInfo Target) : base(Target)
+	public KacyTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 
-		ExtraModuleNames.AddRange( new string[] { "IsThisLove" } );
+		ExtraModuleNames.AddRange( new string[] { "Kacy" } );
 	}
 }

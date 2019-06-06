@@ -7,7 +7,7 @@
 #include "Cpp_Ch_K53sc.generated.h"
 
 UCLASS()
-class ISTHISLOVE_API ACpp_Ch_K53sc : public ACharacter
+class KACY_API ACpp_Ch_K53sc : public ACharacter
 {
 	GENERATED_BODY()
 

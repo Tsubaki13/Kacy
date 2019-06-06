@@ -3,18 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
-#include "CppAnim_K53sc.generated.h"
+#include "GameFramework/GameModeBase.h"
+#include "Cpp_GM_Kacy.generated.h"
 
-
+/**
+ * 
+ */
 UCLASS()
-class ISTHISLOVE_API UCppAnim_K53sc : public UAnimInstance
+class KACY_API ACpp_GM_Kacy : public AGameModeBase
 {
 	GENERATED_BODY()
-
-public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimationVariables")
-		float Speed;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimationVariables")
-		bool bIsFalling;
+	
 };

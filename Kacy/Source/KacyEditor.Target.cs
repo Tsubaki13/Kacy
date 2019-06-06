@@ -3,12 +3,12 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class IsThisLoveEditorTarget : TargetRules
+public class KacyEditorTarget : TargetRules
 {
-	public IsThisLoveEditorTarget(TargetInfo Target) : base(Target)
+	public KacyEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "IsThisLove" } );
+		ExtraModuleNames.AddRange( new string[] { "Kacy" } );
 	}
 }

@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "IsThisLoveGameModeBase.generated.h"
+#include "KacyGameModeBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ISTHISLOVE_API AIsThisLoveGameModeBase : public AGameModeBase
+class KACY_API AKacyGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	

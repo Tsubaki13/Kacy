@@ -19,7 +19,6 @@ ACpp_Ch_K53sc::ACpp_Ch_K53sc()
 
 	FirstPersonCam = CreateDefaultSubobject<UCameraComponent>("FirstPersonCam");
 	FirstPersonCam->SetupAttachment(CameraBoom);
-
 }
 
 // Called when the game starts or when spawned

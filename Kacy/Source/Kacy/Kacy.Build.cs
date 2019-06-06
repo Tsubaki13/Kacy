@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class IsThisLove : ModuleRules
+public class Kacy : ModuleRules
 {
-	public IsThisLove(ReadOnlyTargetRules Target) : base(Target)
+	public Kacy(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
