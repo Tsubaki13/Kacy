@@ -5,19 +5,16 @@
 #include "Classes/Camera/CameraComponent.h"
 #include "CppAnim_K53sc.h"
 #include "Classes/GameFramework/CharacterMovementComponent.h"
-//#include "Public/DrawDebugHelpers.h"
+#include "Cpp_InspectionComp.h"
 #include "Classes/GameFramework/Actor.h"
+//#include "Public/DrawDebugHelpers.h"
 
 // Sets default values
-ACpp_Ch_K53sc::ACpp_Ch_K53sc() :
-	InspectionTraceRange(100),
-	InspectedItemDistanceFromCam(100),
-	bTraceHitActor(false),
-	bItemIsInspectable(false)
+ACpp_Ch_K53sc::ACpp_Ch_K53sc()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// creating default components and setting some of their properties as needed:
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>("CameraBoom");
 	SkelMesh = GetMesh();
 	CameraBoom->SetupAttachment(SkelMesh);
@@ -25,9 +22,10 @@ ACpp_Ch_K53sc::ACpp_Ch_K53sc() :
 
 	FirstPersonCam = CreateDefaultSubobject<UCameraComponent>("FirstPersonCam");
 	FirstPersonCam->SetupAttachment(CameraBoom);
+
+	InspectionComponent = CreateDefaultSubobject<UCpp_InspectionComp>("InspectionComponent");
 }
 
-// Called when the game starts or when spawned
 void ACpp_Ch_K53sc::BeginPlay()
 {
 	Super::BeginPlay();
@@ -35,7 +33,6 @@ void ACpp_Ch_K53sc::BeginPlay()
 	AnimInstance = Cast<UCppAnim_K53sc>(SkelMesh->GetAnimInstance());
 }
 
-// Called every frame
 void ACpp_Ch_K53sc::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -56,7 +53,6 @@ void ACpp_Ch_K53sc::Tick(float DeltaTime)
 	}
 }
 
-// Called to bind functionality to input
 void ACpp_Ch_K53sc::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -71,7 +67,7 @@ void ACpp_Ch_K53sc::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void ACpp_Ch_K53sc::MoveForward(float Amount)
 {
-	if (!bItemIsInspectable)
+	if (!InspectionComponent->bItemIsInspectable)
 	{
 		AddMovementInput(GetActorForwardVector(), Amount);
 	}
@@ -79,7 +75,7 @@ void ACpp_Ch_K53sc::MoveForward(float Amount)
 
 void ACpp_Ch_K53sc::MoveRight(float Amount)
 {
-	if(!bItemIsInspectable)
+	if(!InspectionComponent->bItemIsInspectable)
 	{
 		AddMovementInput(GetActorRightVector(), Amount);
 	}
@@ -87,7 +83,7 @@ void ACpp_Ch_K53sc::MoveRight(float Amount)
 
 void ACpp_Ch_K53sc::LookUp(float Amount)
 {
-	if(!bItemIsInspectable)
+	if(!InspectionComponent->bItemIsInspectable)
 	{
 		AddControllerPitchInput(Amount);
 	}
@@ -95,7 +91,7 @@ void ACpp_Ch_K53sc::LookUp(float Amount)
 
 void ACpp_Ch_K53sc::Turn(float Amount)
 {
-	if(!bItemIsInspectable)
+	if(!InspectionComponent->bItemIsInspectable)
 	{
 		AddControllerYawInput(Amount);
 	}
@@ -103,7 +99,7 @@ void ACpp_Ch_K53sc::Turn(float Amount)
 
 void ACpp_Ch_K53sc::PerformJump()
 {
-	if(!bItemIsInspectable)
+	if(!InspectionComponent->bItemIsInspectable)
 	{
 		Jump();
 	}
@@ -111,73 +107,19 @@ void ACpp_Ch_K53sc::PerformJump()
 
 void ACpp_Ch_K53sc::Interact()
 {
-	if(!bTraceHitActor)
+	if(!InspectionComponent->bTraceHitActor)
 	{
-		InspectItem();
-		if(!bItemIsInspectable)
-			bTraceHitActor = false;
+		InspectionComponent->InspectItem();
+		if(!InspectionComponent->bItemIsInspectable)
+			InspectionComponent->bTraceHitActor = false;
 	}
 	else
 	{
-		if (bItemIsInspectable)
+		if (InspectionComponent->bItemIsInspectable)
 		{
-			RestoreItemTransform(ItemOriginalTransform);
-			bTraceHitActor = false;
-			bItemIsInspectable = false;
+			InspectionComponent->RestoreItemTransform(InspectionComponent->ItemOriginalTransform);
+			InspectionComponent->bTraceHitActor = false;
+			InspectionComponent->bItemIsInspectable = false;
 		}
-	}
-}
-
-void ACpp_Ch_K53sc::InspectItem()
-{
-	FHitResult HitResult = InteractionTrace();
-	if (InspectedItem && bItemIsInspectable)
-	{
-		ItemOriginalTransform = InspectedItem->GetTransform();
-		SetItemInspectionLoc(HitResult);
-	}
-}
-
-FHitResult ACpp_Ch_K53sc::InteractionTrace()
-{
-	// creating the out parameters needed for the line trace.
-	FHitResult HitResult;
-	FVector PlayerViewLoc;
-	FRotator PlayerViewRot;
-	MyWorld->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot); // this function sets the out parameters of the location of the player's "eye" and its rotation
-	FVector InteractLineEnd = PlayerViewLoc + (PlayerViewRot.Vector() * InspectionTraceRange);
-	FCollisionQueryParams ColParams;
-	ColParams.AddIgnoredActor(this);
-	
-	bTraceHitActor = (MyWorld->LineTraceSingleByChannel(HitResult, PlayerViewLoc, InteractLineEnd, ECC_WorldDynamic, ColParams));
-
-	if(bTraceHitActor)
-	{
-		InspectedItem = HitResult.GetActor();
-		bItemIsInspectable = InspectedItem->ActorHasTag("Inspectable");
-	}
-	return HitResult;
-	/*if (bInspectingItem) // line trace returns true if hit something
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit: %s in %s"), *HitResult.GetActor()->GetName(), *HitResult.Location.ToString()); // log just to report the hit actor name and the location of the hit
-		DrawDebugLine(MyWorld, InteractLineStart, InteractLineEnd, FColor(255, 0, 0), false, 2.f, 0.f, 5.f); // drawing debug line only. NOT the actual trace
-	}*/
-}
-
-void ACpp_Ch_K53sc::SetItemInspectionLoc(FHitResult HitResult)
-{
-	FVector PlayerViewLoc, InspectedItemLoc;
-	FRotator PlayerViewRot;
-	MyWorld->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot);
-	InspectedItemLoc = PlayerViewLoc + (PlayerViewRot.Vector() * InspectedItemDistanceFromCam);
-
-	InspectedItem->SetActorLocation(InspectedItemLoc);
-}
-
-void ACpp_Ch_K53sc::RestoreItemTransform(FTransform ItemOriginalTransform)
-{
-	if (InspectedItem != nullptr)
-	{
-		InspectedItem->SetActorTransform(ItemOriginalTransform);
 	}
 }
