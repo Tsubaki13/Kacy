@@ -40,7 +40,6 @@ public:
 	void InspectItem(); // manages the inspection process
 	FHitResult InteractionTrace(); // trace from the player's eye in front of it in a range whose value can be set from the editor
 	void SetItemInspectionTransform(FHitResult HitResult); // bring the item close to the camera if the interaction trace hits something
-	void SetItemScale(); // set the item's scale to always have the same on-screen size while inspecting
 	void RestoreItemTransform(FTransform ItemOriginalTransform); // restore the item to its original transform after inspecting it
 
 	UWorld* MyWorld = GetWorld(); // a reference to the world

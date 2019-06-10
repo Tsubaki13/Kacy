@@ -42,8 +42,7 @@ FHitResult UCpp_InspectionComp::InteractionTrace()
 	MyWorld->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot); // this function sets the out parameters of the location of the player's "eye" and its rotation
 	FVector InteractLineEnd = PlayerViewLoc + (PlayerViewRot.Vector() * InspectionTraceRange);
 	FCollisionQueryParams ColParams;
-	ACpp_Ch_K53sc* K53sc;
-	K53sc = Cast<ACpp_Ch_K53sc>(MyWorld->GetFirstPlayerController()->GetPawn());
+	ACpp_Ch_K53sc* K53sc = Cast<ACpp_Ch_K53sc>(MyWorld->GetFirstPlayerController()->GetPawn());
 	if (K53sc)
 	{
 		ColParams.AddIgnoredActor(K53sc);
@@ -56,6 +55,7 @@ FHitResult UCpp_InspectionComp::InteractionTrace()
 		InspectedItem = HitResult.GetActor();
 		bItemIsInspectable = InspectedItem->ActorHasTag("Inspectable");
 	}
+
 	return HitResult;
 	/*if (bInspectingItem) // line trace returns true if hit something
 	{
@@ -72,11 +72,6 @@ void UCpp_InspectionComp::SetItemInspectionTransform(FHitResult HitResult)
 	InspectedItemLoc = PlayerViewLoc + (PlayerViewRot.Vector() * InspectedItemDistanceFromCam);
 
 	MoveItemToInspectionLoc(InspectedItem, ItemOriginalTransform, InspectedItemLoc, PlayerViewRot);
-}
-
-void UCpp_InspectionComp::SetItemScale()
-{
-
 }
 
 void UCpp_InspectionComp::RestoreItemTransform(FTransform ItemOriginalTransform)
