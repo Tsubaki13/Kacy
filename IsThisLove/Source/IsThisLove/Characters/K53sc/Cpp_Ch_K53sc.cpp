@@ -2,23 +2,12 @@
 
 
 #include "Cpp_Ch_K53sc.h"
-#include "Classes/GameFramework/SpringArmComponent.h"
-#include "Classes/Camera/CameraComponent.h"
 
 // Sets default values
 ACpp_Ch_K53sc::ACpp_Ch_K53sc()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
-
-	SkelMesh = GetMesh();
-
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>("CameraBoom");
-	CameraBoom->SetupAttachment(SkelMesh);
-	CameraBoom->bUsePawnControlRotation = true;
-
-	FirstPersonCam = CreateDefaultSubobject<UCameraComponent>("FirstPersonCam");
-	FirstPersonCam->SetupAttachment(CameraBoom);
+	PrimaryActorTick.bCanEverTick = true;
 
 }
 
@@ -41,39 +30,4 @@ void ACpp_Ch_K53sc::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ACpp_Ch_K53sc::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ACpp_Ch_K53sc::MoveRight);
-	PlayerInputComponent->BindAxis("LookUp", this, &ACpp_Ch_K53sc::LookUp);
-	PlayerInputComponent->BindAxis("Turn", this, &ACpp_Ch_K53sc::Turn);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACpp_Ch_K53sc::PerformJump);
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACpp_Ch_K53sc::Interact);
-}
-
-void ACpp_Ch_K53sc::MoveForward(float Amount)
-{
-	AddMovementInput(GetActorForwardVector(), Amount);
-}
-
-void ACpp_Ch_K53sc::MoveRight(float Amount)
-{
-	AddMovementInput(GetActorRightVector(), Amount);
-}
-
-void ACpp_Ch_K53sc::LookUp(float Amount)
-{
-	AddControllerPitchInput(Amount);
-}
-
-void ACpp_Ch_K53sc::Turn(float Amount)
-{
-	AddControllerYawInput(Amount);
-}
-
-void ACpp_Ch_K53sc::PerformJump()
-{
-	Jump();
-}
-
-void ACpp_Ch_K53sc::Interact()
-{
 }
