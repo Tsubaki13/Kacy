@@ -24,13 +24,16 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// the following UPROPERTYs are used to create the default needed components in the character class
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - BasicComponents")
 		class USpringArmComponent* CameraBoom;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - BasicComponents")
 		class UCameraComponent* FirstPersonCam;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
 		UCpp_InspectionComp* InspectionComponent;
+
+	UFUNCTION(BlueprintCallable, Category = "Kacy - Item Inspection") // this method is called to set a reference to the InspectionComponent that is added to the bp
+		void SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet);
 
 private:
 	// the following methods are used to setup input by getting called from SetupPlayerInputComponent method

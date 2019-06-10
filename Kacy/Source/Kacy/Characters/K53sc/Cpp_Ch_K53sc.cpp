@@ -22,8 +22,6 @@ ACpp_Ch_K53sc::ACpp_Ch_K53sc()
 
 	FirstPersonCam = CreateDefaultSubobject<UCameraComponent>("FirstPersonCam");
 	FirstPersonCam->SetupAttachment(CameraBoom);
-
-	InspectionComponent = CreateDefaultSubobject<UCpp_InspectionComp>("InspectionComponent");
 }
 
 void ACpp_Ch_K53sc::BeginPlay()
@@ -65,25 +63,40 @@ void ACpp_Ch_K53sc::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACpp_Ch_K53sc::Interact);
 }
 
+void ACpp_Ch_K53sc::SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet)
+{
+	InspectionComponent = InspectionComponentToSet;
+}
+
 void ACpp_Ch_K53sc::MoveForward(float Amount)
 {
-	if (!InspectionComponent->bItemIsInspectable)
+	if (InspectionComponent && !InspectionComponent->bItemIsInspectable)
 	{
 		AddMovementInput(GetActorForwardVector(), Amount);
+	}
+	else if (InspectionComponent && InspectionComponent->bItemIsInspectable && (Amount > 0) || (Amount < 0))
+	{
+		FRotator InspectionRotation = FRotator(-Amount * .5f, 0.f, 0.f);
+		InspectionComponent->InspectedItem->AddActorWorldRotation(InspectionRotation, false);
 	}
 }
 
 void ACpp_Ch_K53sc::MoveRight(float Amount)
 {
-	if(!InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
 	{
 		AddMovementInput(GetActorRightVector(), Amount);
+	}
+	else if(InspectionComponent && InspectionComponent->bItemIsInspectable && (Amount > 0) || (Amount < 0))
+	{
+		FRotator InspectionRotation = FRotator(0.f, -Amount * .5f, 0.f);
+		InspectionComponent->InspectedItem->AddActorWorldRotation(InspectionRotation, false);
 	}
 }
 
 void ACpp_Ch_K53sc::LookUp(float Amount)
 {
-	if(!InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
 	{
 		AddControllerPitchInput(Amount);
 	}
@@ -91,7 +104,7 @@ void ACpp_Ch_K53sc::LookUp(float Amount)
 
 void ACpp_Ch_K53sc::Turn(float Amount)
 {
-	if(!InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
 	{
 		AddControllerYawInput(Amount);
 	}
@@ -99,7 +112,7 @@ void ACpp_Ch_K53sc::Turn(float Amount)
 
 void ACpp_Ch_K53sc::PerformJump()
 {
-	if(!InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
 	{
 		Jump();
 	}
@@ -107,7 +120,7 @@ void ACpp_Ch_K53sc::PerformJump()
 
 void ACpp_Ch_K53sc::Interact()
 {
-	if(!InspectionComponent->bTraceHitActor)
+	if(InspectionComponent && !InspectionComponent->bTraceHitActor)
 	{
 		InspectionComponent->InspectItem();
 		if(!InspectionComponent->bItemIsInspectable)
@@ -115,7 +128,7 @@ void ACpp_Ch_K53sc::Interact()
 	}
 	else
 	{
-		if (InspectionComponent->bItemIsInspectable)
+		if (InspectionComponent && InspectionComponent->bItemIsInspectable)
 		{
 			InspectionComponent->RestoreItemTransform(InspectionComponent->ItemOriginalTransform);
 			InspectionComponent->bTraceHitActor = false;

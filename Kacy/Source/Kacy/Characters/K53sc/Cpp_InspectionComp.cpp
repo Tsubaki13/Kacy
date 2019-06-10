@@ -29,7 +29,7 @@ void UCpp_InspectionComp::InspectItem()
 	if(InspectedItem && bItemIsInspectable)
 	{
 		ItemOriginalTransform = InspectedItem->GetTransform();
-		SetItemInspectionLoc(HitResult);
+		SetItemInspectionTransform(HitResult);
 	}
 }
 
@@ -64,20 +64,25 @@ FHitResult UCpp_InspectionComp::InteractionTrace()
 	}*/
 }
 
-void UCpp_InspectionComp::SetItemInspectionLoc(FHitResult HitResult)
+void UCpp_InspectionComp::SetItemInspectionTransform(FHitResult HitResult)
 {
 	FVector PlayerViewLoc, InspectedItemLoc;
 	FRotator PlayerViewRot;
 	MyWorld->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot);
 	InspectedItemLoc = PlayerViewLoc + (PlayerViewRot.Vector() * InspectedItemDistanceFromCam);
 
-	InspectedItem->SetActorLocation(InspectedItemLoc);
+	MoveItemToInspectionLoc(InspectedItem, ItemOriginalTransform, InspectedItemLoc, PlayerViewRot);
+}
+
+void UCpp_InspectionComp::SetItemScale()
+{
+
 }
 
 void UCpp_InspectionComp::RestoreItemTransform(FTransform ItemOriginalTransform)
 {
-	if(InspectedItem != nullptr)
+	if(InspectedItem)
 	{
-		InspectedItem->SetActorTransform(ItemOriginalTransform);
+		MoveItemToOriginalLoc();
 	}
 }
