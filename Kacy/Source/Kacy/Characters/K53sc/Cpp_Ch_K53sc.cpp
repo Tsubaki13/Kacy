@@ -37,9 +37,10 @@ void ACpp_Ch_K53sc::Tick(float DeltaTime)
 
 	if(AnimInstance && SkelMesh)
 	{
-		AnimInstance->Speed = AnimInstance->TryGetPawnOwner()->GetVelocity().Size();
-
-		AnimInstance->bIsFalling = ACharacter::GetCharacterMovement()->IsFalling();
+		CurrentSpeed = AnimInstance->TryGetPawnOwner()->GetVelocity().Size();
+		AnimInstance->Speed = CurrentSpeed;
+		bIsCurrentlyFalling = ACharacter::GetCharacterMovement()->IsFalling();
+		AnimInstance->bIsFalling = bIsCurrentlyFalling;
 		//UE_LOG(LogTemp, Warning, TEXT("speed: %f / %s"), AnimInstance->Speed, (AnimInstance->bIsFalling ? TEXT("is falling") : TEXT("is NOT falling")))
 	}
 	else
@@ -120,15 +121,15 @@ void ACpp_Ch_K53sc::PerformJump()
 
 void ACpp_Ch_K53sc::Interact()
 {
-	if(InspectionComponent && !InspectionComponent->bTraceHitActor)
+	if (!bIsCurrentlyFalling)
 	{
-		InspectionComponent->InspectItem();
-		if(!InspectionComponent->bItemIsInspectable)
-			InspectionComponent->bTraceHitActor = false;
-	}
-	else
-	{
-		if (InspectionComponent && InspectionComponent->bItemIsInspectable)
+		if(InspectionComponent && !InspectionComponent->bTraceHitActor)
+		{
+			InspectionComponent->InspectItem();
+			if(!InspectionComponent->bItemIsInspectable)
+				InspectionComponent->bTraceHitActor = false;
+		}
+		else if(InspectionComponent && InspectionComponent->bItemIsInspectable)
 		{
 			InspectionComponent->RestoreItemTransform(InspectionComponent->ItemOriginalTransform);
 			InspectionComponent->bTraceHitActor = false;

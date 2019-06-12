@@ -35,6 +35,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Kacy - Item Inspection") // this method is called to set a reference to the InspectionComponent that is added to the bp
 		void SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet);
 
+	float CurrentSpeed;
+	bool bIsCurrentlyFalling;
 private:
 	// the following methods are used to setup input by getting called from SetupPlayerInputComponent method
 	void MoveForward(float Amount);
