@@ -1,4 +1,4 @@
-// This game was designed and developed by OURTEAMNAME as the BA2 semester project for the summer semester 2019. OURTEAMNAME's members: Jann Albrecht (Designer). Patrick Handwerk (Programmer). Mohammed Najeeb Mshaweh (Programmer). Bjoern Roethig (3D Artist). Pauline Mueller (2D Artist).
+// This game was designed and developed by team OnTime as the BA2 semester project for the summer semester 2019 in CologneGameLab in Cologne, Germany. Team OnTime's members: Jann Albrecht (Designer). Patrick Handwerk (Programmer). Mohammed Najeeb Mshaweh (Programmer). Bjoern Roethig (3D Artist). Pauline Mueller (2D Artist).
 
 #include "Cpp_Ch_K53sc.h"
 #include "Classes/GameFramework/SpringArmComponent.h"
@@ -62,6 +62,8 @@ void ACpp_Ch_K53sc::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("Turn", this, &ACpp_Ch_K53sc::Turn);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACpp_Ch_K53sc::PerformJump);
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACpp_Ch_K53sc::Interact);
+	PlayerInputComponent->BindAction("Grab", IE_Pressed, this, &ACpp_Ch_K53sc::Grab);
+	PlayerInputComponent->BindAction("Grab", IE_Released, this, &ACpp_Ch_K53sc::Ungrab);
 }
 
 void ACpp_Ch_K53sc::SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet)
@@ -135,5 +137,21 @@ void ACpp_Ch_K53sc::Interact()
 			InspectionComponent->bTraceHitActor = false;
 			InspectionComponent->bItemIsInspectable = false;
 		}
+	}
+}
+
+void ACpp_Ch_K53sc::Grab()
+{
+	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	{
+		OnGrabItem.Broadcast();
+	}
+}
+
+void ACpp_Ch_K53sc::Ungrab()
+{
+	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	{
+		OnUngrabItem.Broadcast();
 	}
 }
