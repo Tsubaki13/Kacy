@@ -1,12 +1,15 @@
-// This game was designed and developed by team OnTime as the BA2 semester project for the summer semester 2019 in CologneGameLab in Cologne, Germany. Team OnTime's members: Jann Albrecht (Designer). Patrick Handwerk (Programmer). Mohammed Najeeb Mshaweh (Programmer). Bjoern Roethig (3D Artist). Pauline Mueller (2D Artist).
+// This game was designed and developed by team OnTime as the BA2 semester project for the summer semester 2019 in CologneGameLab in Cologne, Germany. Team OnTime's members: Jann Albrecht (Designer), Patrick Handwerk (Programmer), Mohammed Najeeb Mshaweh (Programmer), Bjoern Roethig (3D Artist), Sameh Aransa (3D Artist), and Pauline Mueller (2D Artist).
 
 #include "Cpp_InspectionComp.h"
 #include "Cpp_Ch_K53sc.h"
-
+#include "Classes/Components/CapsuleComponent.h"
+#include "Classes/Components/StaticMeshComponent.h"
+#include "Public/Math/BoxSphereBounds.h"
 // Sets default values for this component's properties
 UCpp_InspectionComp::UCpp_InspectionComp() :
 	InspectionTraceRange(100),
 	InspectedItemDistanceFromCam(100),
+	InspectionScreenSize(10.f),
 	bTraceHitActor(false),
 	bItemIsInspectable(false)
 {
@@ -71,7 +74,9 @@ void UCpp_InspectionComp::SetItemInspectionTransform(FHitResult HitResult)
 	MyWorld->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot);
 	InspectedItemLoc = PlayerViewLoc + (PlayerViewRot.Vector() * InspectedItemDistanceFromCam);
 
-	MoveItemToInspectionLoc(InspectedItem, ItemOriginalTransform, InspectedItemLoc, PlayerViewRot);
+	FVector InspectedItemScale = SetItemScale();
+	
+	MoveItemToInspectionLoc(InspectedItem, ItemOriginalTransform, InspectedItemLoc, PlayerViewRot, InspectedItemScale);
 }
 
 void UCpp_InspectionComp::RestoreItemTransform(FTransform ItemOriginalTransform)
@@ -80,4 +85,23 @@ void UCpp_InspectionComp::RestoreItemTransform(FTransform ItemOriginalTransform)
 	{
 		MoveItemToOriginalLoc();
 	}
+}
+
+FVector UCpp_InspectionComp::SetItemScale()
+{
+	ACpp_Ch_K53sc* K53sc = Cast<ACpp_Ch_K53sc>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (K53sc)
+	{
+		UStaticMeshComponent* StMesh = Cast<UStaticMeshComponent>(InspectedItem->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+
+		float K53scRadius = K53sc->GetCapsuleComponent()->Bounds.SphereRadius;
+		float InspectedItemRadius = StMesh->Bounds.SphereRadius;
+		float InspectionScalePercentage = ((K53scRadius * InspectionScreenSize) / InspectedItemRadius) / 100;
+		FVector FinalInspectionScale = InspectedItem->GetActorScale3D() * InspectionScalePercentage;
+			
+		UE_LOG(LogTemp, Warning, TEXT("%f"), StMesh->Bounds.SphereRadius)
+
+		return FinalInspectionScale;
+	}
+	return FVector(0);
 }
