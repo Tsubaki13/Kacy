@@ -5,13 +5,15 @@
 #include "Classes/Components/CapsuleComponent.h"
 #include "Classes/Components/StaticMeshComponent.h"
 #include "Public/Math/BoxSphereBounds.h"
-// Sets default values for this component's properties
+// #include "Public/DrawDebugHelpers.h"
+
 UCpp_InspectionComp::UCpp_InspectionComp() :
 	InspectionTraceRange(100),
 	InspectedItemDistanceFromCam(100),
 	InspectionScreenSize(10.f),
 	bTraceHitActor(false),
-	bItemIsInspectable(false)
+	bItemIsInspectable(false),
+	bIsCurrentlyInspectingItem(false)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
@@ -31,6 +33,7 @@ void UCpp_InspectionComp::InspectItem()
 	FHitResult HitResult = InteractionTrace();
 	if(InspectedItem && bItemIsInspectable)
 	{
+		bIsCurrentlyInspectingItem = true;		
 		ItemOriginalTransform = InspectedItem->GetTransform();
 		SetItemInspectionTransform(HitResult);
 	}
@@ -57,8 +60,9 @@ FHitResult UCpp_InspectionComp::InteractionTrace()
 	{
 		InspectedItem = HitResult.GetActor();
 		bItemIsInspectable = InspectedItem->ActorHasTag("Inspectable");
+		bItemIsPickupable = InspectedItem->ActorHasTag("Pickupable");
 	}
-
+	
 	return HitResult;
 	/*if (bInspectingItem) // line trace returns true if hit something
 	{
@@ -83,6 +87,7 @@ void UCpp_InspectionComp::RestoreItemTransform(FTransform ItemOriginalTransform)
 {
 	if(InspectedItem)
 	{
+		bIsCurrentlyInspectingItem = false;
 		MoveItemToOriginalLoc();
 	}
 }
@@ -98,8 +103,6 @@ FVector UCpp_InspectionComp::SetItemScale()
 		float InspectedItemRadius = StMesh->Bounds.SphereRadius;
 		float InspectionScalePercentage = ((K53scRadius * InspectionScreenSize) / InspectedItemRadius) / 100;
 		FVector FinalInspectionScale = InspectedItem->GetActorScale3D() * InspectionScalePercentage;
-			
-		UE_LOG(LogTemp, Warning, TEXT("%f"), StMesh->Bounds.SphereRadius)
 
 		return FinalInspectionScale;
 	}

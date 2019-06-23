@@ -16,6 +16,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Interactable") // this value is set in the blueprint that inherits from this class
 		bool bIsInspectable;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Interactable") // this value is set in the blueprint that inherits from this class
+		bool bIsPickupable;
 
 protected:
 	virtual void BeginPlay() override;

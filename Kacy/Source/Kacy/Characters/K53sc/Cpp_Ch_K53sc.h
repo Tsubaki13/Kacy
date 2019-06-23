@@ -9,6 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGrabDelegate); // event dispatcher created to be called from any blueprint
 
 class UCpp_InspectionComp; // declaration of the inspection component class
+class UCpp_PickupComp; // declaration of the pickup component class
 
 UCLASS()
 class KACY_API ACpp_Ch_K53sc : public ACharacter
@@ -33,6 +34,8 @@ public:
 		class UCameraComponent* FirstPersonCam;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
 		UCpp_InspectionComp* InspectionComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
+		UCpp_PickupComp* PickupComponent;
 
 	// the following UPROPERTYs are of the type FGrabDelegate which is the event dispatcher created at the top of this file. they will be broadcasted to blueprint
 	UPROPERTY(BlueprintAssignable, Category = "Kacy - Grab")
@@ -42,6 +45,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Kacy - Item Inspection") // this method is called to set a reference to the InspectionComponent that is added to the bp
 		void SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet);
+	UFUNCTION(BlueprintCallable, Category = "Kacy - Item Pickup") // this method is called to set a reference to the PickupComponent that is added to the bp
+		void SetPickupCompRef(UCpp_PickupComp* PickupComponentToSet);
 
 	// the following variables will be used to set the values in the animation instance from which the animation blueprint inherits
 	float CurrentSpeed;
@@ -57,7 +62,9 @@ private:
 	void Interact();
 	void Grab();
 	void Ungrab();
+	void DropItem();
 
 	USkeletalMeshComponent* SkelMesh; // a reference to the skeletal mesh
 	class UCppAnim_K53sc* AnimInstance; // a reference to the animation instance class, from which the animation blueprint inherits
 };
+ 

@@ -6,8 +6,8 @@
 #include "CppAnim_K53sc.h"
 #include "Classes/GameFramework/CharacterMovementComponent.h"
 #include "Cpp_InspectionComp.h"
+#include "Cpp_PickupComp.h"
 #include "Classes/GameFramework/Actor.h"
-//#include "Public/DrawDebugHelpers.h"
 
 // Sets default values
 ACpp_Ch_K53sc::ACpp_Ch_K53sc()
@@ -64,11 +64,17 @@ void ACpp_Ch_K53sc::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ACpp_Ch_K53sc::Interact);
 	PlayerInputComponent->BindAction("Grab", IE_Pressed, this, &ACpp_Ch_K53sc::Grab);
 	PlayerInputComponent->BindAction("Grab", IE_Released, this, &ACpp_Ch_K53sc::Ungrab);
+	PlayerInputComponent->BindAction("DropItem", IE_Released, this, &ACpp_Ch_K53sc::DropItem);
 }
 
 void ACpp_Ch_K53sc::SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet)
 {
 	InspectionComponent = InspectionComponentToSet;
+}
+
+void ACpp_Ch_K53sc::SetPickupCompRef(UCpp_PickupComp* PickupComponentToSet)
+{
+	PickupComponent = PickupComponentToSet;
 }
 
 void ACpp_Ch_K53sc::MoveForward(float Amount)
@@ -129,7 +135,9 @@ void ACpp_Ch_K53sc::Interact()
 		{
 			InspectionComponent->InspectItem();
 			if(!InspectionComponent->bItemIsInspectable)
+			{
 				InspectionComponent->bTraceHitActor = false;
+			}
 		}
 		else if(InspectionComponent && InspectionComponent->bItemIsInspectable)
 		{
@@ -142,16 +150,31 @@ void ACpp_Ch_K53sc::Interact()
 
 void ACpp_Ch_K53sc::Grab()
 {
-	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	if (InspectionComponent && !InspectionComponent->bIsCurrentlyInspectingItem)
 	{
 		OnGrabItem.Broadcast();
+	}
+	else
+	{
+		if (PickupComponent && InspectionComponent->bIsCurrentlyInspectingItem && InspectionComponent->bItemIsPickupable)
+		{
+			PickupComponent->PickupItem();
+		}
 	}
 }
 
 void ACpp_Ch_K53sc::Ungrab()
 {
-	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	OnUngrabItem.Broadcast();
+}
+
+void ACpp_Ch_K53sc::DropItem()
+{
+	if (PickupComponent)
 	{
-		OnUngrabItem.Broadcast();
+		if (InspectionComponent && !InspectionComponent->bIsCurrentlyInspectingItem && !bIsCurrentlyFalling)
+		{
+			PickupComponent->DropItem();
+		}
 	}
 }

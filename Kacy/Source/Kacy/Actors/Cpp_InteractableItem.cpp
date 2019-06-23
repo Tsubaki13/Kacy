@@ -3,7 +3,8 @@
 #include "Cpp_InteractableItem.h"
 
 ACpp_InteractableItem::ACpp_InteractableItem() :
-	bIsInspectable(false)
+	bIsInspectable(false),
+	bIsPickupable(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
@@ -12,7 +13,7 @@ void ACpp_InteractableItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(bIsInspectable && !(this->Tags.Num() > 0))
+	if(bIsInspectable && !(this->Tags.Contains("Inspectable")))
 	{
 			this->Tags.Add("Inspectable");
 	}
@@ -20,7 +21,19 @@ void ACpp_InteractableItem::BeginPlay()
 	{
 		if(!bIsInspectable)
 		{
-			this->Tags.Empty();
+			this->Tags.Remove("Inspectable");
+		}
+	}
+
+	if(bIsPickupable && !(this->Tags.Contains("Pickupable")))
+	{
+		this->Tags.Add("Pickupable");
+	}
+	else
+	{
+		if(!bIsPickupable)
+		{
+			this->Tags.Remove("Pickupable");
 		}
 	}
 }
