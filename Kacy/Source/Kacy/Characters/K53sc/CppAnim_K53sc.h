@@ -14,7 +14,9 @@ class KACY_API UCppAnim_K53sc : public UAnimInstance
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimationVariables")
-		float Speed;
+		FVector Velocity;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimationVariables")
 		bool bIsFalling;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimationVariables")
+		bool bIsInspecting;
 };

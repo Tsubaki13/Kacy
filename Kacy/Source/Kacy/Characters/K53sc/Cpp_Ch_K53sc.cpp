@@ -37,10 +37,11 @@ void ACpp_Ch_K53sc::Tick(float DeltaTime)
 
 	if(AnimInstance && SkelMesh)
 	{
-		CurrentSpeed = AnimInstance->TryGetPawnOwner()->GetVelocity().Size();
-		AnimInstance->Speed = CurrentSpeed;
+		CurrentVelocity = AnimInstance->TryGetPawnOwner()->GetVelocity();
+		AnimInstance->Velocity = CurrentVelocity;
 		bIsCurrentlyFalling = ACharacter::GetCharacterMovement()->IsFalling();
 		AnimInstance->bIsFalling = bIsCurrentlyFalling;
+		AnimInstance->bIsInspecting = InspectionComponent->bIsCurrentlyInspectingItem;
 		//UE_LOG(LogTemp, Warning, TEXT("speed: %f / %s"), AnimInstance->Speed, (AnimInstance->bIsFalling ? TEXT("is falling") : TEXT("is NOT falling")))
 	}
 	else

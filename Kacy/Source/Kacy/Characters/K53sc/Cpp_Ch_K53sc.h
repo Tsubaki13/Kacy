@@ -49,7 +49,7 @@ public:
 		void SetPickupCompRef(UCpp_PickupComp* PickupComponentToSet);
 
 	// the following variables will be used to set the values in the animation instance from which the animation blueprint inherits
-	float CurrentSpeed;
+	FVector CurrentVelocity;
 	bool bIsCurrentlyFalling;
 
 private:
