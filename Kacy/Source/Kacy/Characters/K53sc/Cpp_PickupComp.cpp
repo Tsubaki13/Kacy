@@ -4,11 +4,13 @@
 #include "Cpp_Ch_K53sc.h"
 #include "Cpp_InspectionComp.h"
 #include "Classes/Components/SkeletalMeshComponent.h"
+// #include "Public/DrawDebugHelpers.h"
 
 UCpp_PickupComp::UCpp_PickupComp() :
 	NumberOfHeldItems(0),
 	bHasItemInHand(false),
-	bHasItemOnBack(false)
+	bHasItemOnBack(false),
+	NumberOfItemsHeld(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
@@ -29,7 +31,7 @@ void UCpp_PickupComp::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UCpp_PickupComp::PickupItem()
 {
-	if (!bHasItemInHand)
+	if(!bHasItemInHand && !ItemInHand && NumberOfItemsHeld < 1)
 	{
 		InspectionComponent->bTraceHitActor = false;
 		InspectionComponent->bItemIsInspectable = false;
@@ -44,8 +46,9 @@ void UCpp_PickupComp::PickupItem()
 		bHasItemInHand = true;
 		InspectionComponent->bIsCurrentlyInspectingItem = false;
 		ItemInHand = InspectionComponent->InspectedItem;
+		NumberOfItemsHeld++;
 	}
-	else if (!bHasItemOnBack)
+	else if (!bHasItemOnBack && !ItemOnBack && NumberOfItemsHeld < 2)
 	{
 		InspectionComponent->bTraceHitActor = false;
 		InspectionComponent->bItemIsInspectable = false;
@@ -60,26 +63,28 @@ void UCpp_PickupComp::PickupItem()
 		bHasItemOnBack = true;
 		InspectionComponent->bIsCurrentlyInspectingItem = false;
 		ItemOnBack = InspectionComponent->InspectedItem;
+		NumberOfItemsHeld++;
 	}
-	else
+	else if (NumberOfItemsHeld == 2)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CAN'T PICKUP ANYTHING ANYMORE! ALL IS FULL!!"));
+		UE_LOG(LogTemp, Warning, TEXT("CAN'T PICKUP ANYTHING ANYMORE!"))
 	}
 }
 
 void UCpp_PickupComp::DropItem()
 {
-		USkeletalMeshComponent* SkMesh = Cast<USkeletalMeshComponent>(K53sc->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+	USkeletalMeshComponent* SkMesh = Cast<USkeletalMeshComponent>(K53sc->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
 
-	if (ItemInHand)
+	if (ItemInHand && NumberOfItemsHeld >= 1)
 	{
 		FDetachmentTransformRules DetachRules = DetachRules.KeepWorldTransform;
 		ItemInHand->DetachFromActor(DetachRules);
 		ItemInHand->SetActorEnableCollision(true);
+		PlaceItemOnFloor(ItemInHand);
 		ItemInHand = nullptr;
 		bHasItemInHand = false;
 
-		if (ItemOnBack)
+		if (ItemOnBack && NumberOfItemsHeld == 2)
 		{
 			FAttachmentTransformRules AttachRules = AttachRules.SnapToTargetNotIncludingScale;
 			ItemOnBack->AttachToComponent(SkMesh, AttachRules, "RHandSocket");
@@ -87,6 +92,26 @@ void UCpp_PickupComp::DropItem()
 			ItemInHand = ItemOnBack;
 			ItemOnBack = nullptr;
 			bHasItemOnBack = false;
+			NumberOfItemsHeld--;
+			return;
 		}
+		NumberOfItemsHeld--;
+	}
+}
+
+void UCpp_PickupComp::PlaceItemOnFloor(AActor* DroppedItem)
+{
+	FHitResult HitResult;
+	FVector TraceStart = DroppedItem->GetActorLocation();
+	FVector TraceEnd = DroppedItem->GetActorLocation() + FVector(0.f, 0.f, -800.f);
+	FCollisionQueryParams ColParams;
+	ColParams.AddIgnoredActor(K53sc);
+	ColParams.AddIgnoredActor(DroppedItem);
+
+	// DrawDebugLine(MyWorld, TraceStart, TraceEnd, FColor(255, 0, 0), false, 2.f, 0.f, 5.f);
+	if (MyWorld->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, ColParams))
+	{
+		float MeshRadius = Cast<UStaticMeshComponent>(DroppedItem->GetComponentByClass(UStaticMeshComponent::StaticClass()))->Bounds.SphereRadius;
+		DroppedItem->SetActorLocation(HitResult.Location + FVector(MeshRadius * .65f), true);
 	}
 }

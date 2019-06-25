@@ -150,15 +150,27 @@ void ACpp_Ch_K53sc::Interact()
 
 void ACpp_Ch_K53sc::Grab()
 {
-	if (InspectionComponent && !InspectionComponent->bIsCurrentlyInspectingItem)
+	if(!bIsCurrentlyFalling)
 	{
-		OnGrabItem.Broadcast();
-	}
-	else
-	{
-		if (PickupComponent && InspectionComponent->bIsCurrentlyInspectingItem && InspectionComponent->bItemIsPickupable)
+		if(InspectionComponent)
 		{
-			PickupComponent->PickupItem();
+			if(!InspectionComponent->bIsCurrentlyInspectingItem)
+			{
+				OnGrabItem.Broadcast();
+				
+				/*if (PickupComponent && !InspectionComponent->bItemIsInspectable && InspectionComponent->bItemIsPickupable)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("picked"))
+					PickupComponent->PickupItem();
+				}*/
+			}
+			else
+			{
+				if(PickupComponent && InspectionComponent->bIsCurrentlyInspectingItem)
+				{
+					PickupComponent->PickupItem();
+				}
+			}
 		}
 	}
 }

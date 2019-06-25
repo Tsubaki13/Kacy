@@ -64,6 +64,7 @@ FHitResult UCpp_InspectionComp::InteractionTrace()
 	}
 	
 	return HitResult;
+
 	/*if (bInspectingItem) // line trace returns true if hit something
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit: %s in %s"), *HitResult.GetActor()->GetName(), *HitResult.Location.ToString()); // log just to report the hit actor name and the location of the hit

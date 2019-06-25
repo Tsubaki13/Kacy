@@ -32,9 +32,11 @@ public:
 private:
 	UCpp_InspectionComp* InspectionComponent; // a reference to the inspection component
 
+	void PlaceItemOnFloor(AActor* DroppedItem);
+
 	AActor* ItemInHand;
 	AActor* ItemOnBack;
-
+	int32 NumberOfItemsHeld;
 	UWorld* MyWorld;
 	ACpp_Ch_K53sc* K53sc;
 };
