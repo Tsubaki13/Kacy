@@ -64,6 +64,9 @@ private:
 	void Ungrab();
 	void DropItem();
 
+	// helper functions
+	FHitResult LookForActor();
+
 	USkeletalMeshComponent* SkelMesh; // a reference to the skeletal mesh
 	class UCppAnim_K53sc* AnimInstance; // a reference to the animation instance class, from which the animation blueprint inherits
 };

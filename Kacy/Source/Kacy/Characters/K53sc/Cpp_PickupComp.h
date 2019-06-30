@@ -23,17 +23,18 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void PickupItem(); // moves the item from the inspection screen to hand if there's space
+	void PickupItem(AActor *ItemToPickup); // moves the item from the inspection screen to hand if there's space
 	void DropItem(); // lets go of the item in hand and moves the item on the back to the hand. if no item on the back, only lets go of it
 
 	int32 NumberOfHeldItems;
-	bool bHasItemInHand, bHasItemOnBack;
+	bool bHasItemInHand, bHasItemOnBack, bItemIsPickupable;
 
 private:
 	UCpp_InspectionComp* InspectionComponent; // a reference to the inspection component
 
 	void PlaceItemOnFloor(AActor* DroppedItem);
-
+	void AttachItemToSocket(AActor* ItemToPickup, FName SocketName);
+	
 	AActor* ItemInHand;
 	AActor* ItemOnBack;
 	int32 NumberOfItemsHeld;

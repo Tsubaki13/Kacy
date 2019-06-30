@@ -36,16 +36,16 @@ public:
 
 	bool bTraceHitActor; // true if trace hits an actor
 	bool bItemIsInspectable; // checks if the item hit by the trace has the "inspectable" tag
-	bool bItemIsPickupable; // checks if the item hit by the trace has the "Pickupable" tag
 	AActor* InspectedItem; // a reference to the inspected item
 	FTransform ItemOriginalTransform; // the original transform of the item before inspection
 
 	void InspectItem(); // manages the inspection process
 	FHitResult InteractionTrace(); // trace from the player's eye in front of it in a range whose value can be set from the editor
-	void SetItemInspectionTransform(FHitResult HitResult); // bring the item close to the camera if the interaction trace hits something
+	void SetItemInspectionTransform(); // bring the item close to the camera if the interaction trace hits something
 	FVector SetItemScale(); // calculates the scale and feeds it into the previous function
 	void RestoreItemTransform(FTransform ItemOriginalTransform); // restore the item to its original transform after inspecting it
 	bool bIsCurrentlyInspectingItem;
+	void SetInspectedItem(AActor *ItemToInspect);
 
 	UWorld* MyWorld = GetWorld(); // a reference to the world
 };

@@ -30,12 +30,11 @@ void UCpp_InspectionComp::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UCpp_InspectionComp::InspectItem()
 {
-	FHitResult HitResult = InteractionTrace();
 	if(InspectedItem && bItemIsInspectable)
 	{
 		bIsCurrentlyInspectingItem = true;		
 		ItemOriginalTransform = InspectedItem->GetTransform();
-		SetItemInspectionTransform(HitResult);
+		SetItemInspectionTransform();
 	}
 }
 
@@ -60,7 +59,6 @@ FHitResult UCpp_InspectionComp::InteractionTrace()
 	{
 		InspectedItem = HitResult.GetActor();
 		bItemIsInspectable = InspectedItem->ActorHasTag("Inspectable");
-		bItemIsPickupable = InspectedItem->ActorHasTag("Pickupable");
 	}
 	
 	return HitResult;
@@ -72,7 +70,7 @@ FHitResult UCpp_InspectionComp::InteractionTrace()
 	}*/
 }
 
-void UCpp_InspectionComp::SetItemInspectionTransform(FHitResult HitResult)
+void UCpp_InspectionComp::SetItemInspectionTransform()
 {
 	FVector PlayerViewLoc, InspectedItemLoc;
 	FRotator PlayerViewRot;
@@ -91,6 +89,12 @@ void UCpp_InspectionComp::RestoreItemTransform(FTransform ItemOriginalTransform)
 		bIsCurrentlyInspectingItem = false;
 		MoveItemToOriginalLoc();
 	}
+}
+
+void UCpp_InspectionComp::SetInspectedItem(AActor* ItemToInspect)
+{
+	bItemIsInspectable = ItemToInspect->ActorHasTag("Inspectable");
+	InspectedItem = ItemToInspect;
 }
 
 FVector UCpp_InspectionComp::SetItemScale()

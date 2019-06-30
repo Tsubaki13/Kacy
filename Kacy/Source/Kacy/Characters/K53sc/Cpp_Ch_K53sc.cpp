@@ -8,6 +8,7 @@
 #include "Cpp_InspectionComp.h"
 #include "Cpp_PickupComp.h"
 #include "Classes/GameFramework/Actor.h"
+//#include "Public/DrawDebugHelpers.h"
 
 // Sets default values
 ACpp_Ch_K53sc::ACpp_Ch_K53sc()
@@ -80,7 +81,7 @@ void ACpp_Ch_K53sc::SetPickupCompRef(UCpp_PickupComp* PickupComponentToSet)
 
 void ACpp_Ch_K53sc::MoveForward(float Amount)
 {
-	if (InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	if (InspectionComponent && !InspectionComponent->InspectedItem)
 	{
 		AddMovementInput(GetActorForwardVector(), Amount);
 	}
@@ -93,7 +94,7 @@ void ACpp_Ch_K53sc::MoveForward(float Amount)
 
 void ACpp_Ch_K53sc::MoveRight(float Amount)
 {
-	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->InspectedItem)
 	{
 		AddMovementInput(GetActorRightVector(), Amount);
 	}
@@ -106,7 +107,7 @@ void ACpp_Ch_K53sc::MoveRight(float Amount)
 
 void ACpp_Ch_K53sc::LookUp(float Amount)
 {
-	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->InspectedItem)
 	{
 		AddControllerPitchInput(Amount);
 	}
@@ -114,7 +115,7 @@ void ACpp_Ch_K53sc::LookUp(float Amount)
 
 void ACpp_Ch_K53sc::Turn(float Amount)
 {
-	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->InspectedItem)
 	{
 		AddControllerYawInput(Amount);
 	}
@@ -122,7 +123,7 @@ void ACpp_Ch_K53sc::Turn(float Amount)
 
 void ACpp_Ch_K53sc::PerformJump()
 {
-	if(InspectionComponent && !InspectionComponent->bItemIsInspectable)
+	if(InspectionComponent && !InspectionComponent->InspectedItem)
 	{
 		Jump();
 	}
@@ -132,19 +133,23 @@ void ACpp_Ch_K53sc::Interact()
 {
 	if (!bIsCurrentlyFalling)
 	{
-		if(InspectionComponent && !InspectionComponent->bTraceHitActor)
+		if (InspectionComponent)
 		{
-			InspectionComponent->InspectItem();
-			if(!InspectionComponent->bItemIsInspectable)
+			if (!InspectionComponent->InspectedItem)
 			{
-				InspectionComponent->bTraceHitActor = false;
+				FHitResult TraceResult = LookForActor();
+				if (TraceResult.GetActor() && TraceResult.GetActor()->ActorHasTag("Inspectable"))
+				{
+					InspectionComponent->SetInspectedItem(TraceResult.GetActor());
+					InspectionComponent->InspectItem();
+				}
 			}
-		}
-		else if(InspectionComponent && InspectionComponent->bItemIsInspectable)
-		{
-			InspectionComponent->RestoreItemTransform(InspectionComponent->ItemOriginalTransform);
-			InspectionComponent->bTraceHitActor = false;
-			InspectionComponent->bItemIsInspectable = false;
+			else
+			{
+				InspectionComponent->RestoreItemTransform(InspectionComponent->ItemOriginalTransform);
+				InspectionComponent->InspectedItem = nullptr;
+				InspectionComponent->bItemIsInspectable = false;
+			}
 		}
 	}
 }
@@ -153,27 +158,48 @@ void ACpp_Ch_K53sc::Grab()
 {
 	if(!bIsCurrentlyFalling)
 	{
-		if(InspectionComponent)
+		if(InspectionComponent && PickupComponent)
 		{
 			if(!InspectionComponent->bIsCurrentlyInspectingItem)
 			{
 				OnGrabItem.Broadcast();
-				
-				/*if (PickupComponent && !InspectionComponent->bItemIsInspectable && InspectionComponent->bItemIsPickupable)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("picked"))
-					PickupComponent->PickupItem();
-				}*/
+
+				FHitResult TraceResult = LookForActor();
+				if(TraceResult.GetActor())
+					PickupComponent->PickupItem(TraceResult.GetActor());
 			}
 			else
 			{
 				if(PickupComponent && InspectionComponent->bIsCurrentlyInspectingItem)
 				{
-					PickupComponent->PickupItem();
+					PickupComponent->PickupItem(InspectionComponent->InspectedItem);
+
+					if (PickupComponent->bItemIsPickupable)
+					{
+						InspectionComponent->bIsCurrentlyInspectingItem = false;
+						InspectionComponent->InspectedItem->SetActorScale3D(InspectionComponent->ItemOriginalTransform.GetScale3D());
+						InspectionComponent->InspectedItem = nullptr;
+					}
 				}
 			}
 		}
 	}
+}
+
+FHitResult ACpp_Ch_K53sc::LookForActor()
+{
+	FHitResult HitResult;
+	FVector PlayerViewLoc;
+	FRotator PlayerViewRot;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot); // this function sets the out parameters of the location of the player's "eye" and its rotation
+	FVector InteractLineEnd = PlayerViewLoc + (PlayerViewRot.Vector() * InspectionComponent->InspectionTraceRange);
+	FCollisionQueryParams ColParams;
+	ColParams.AddIgnoredActor(this);
+
+	GetWorld()->LineTraceSingleByChannel(HitResult, PlayerViewLoc, InteractLineEnd, ECC_WorldDynamic, ColParams);
+	//DrawDebugLine(GetWorld(), PlayerViewLoc, InteractLineEnd, FColor(255, 0, 0), false, 2.f, 0.f, 5.f); // drawing debug line only. NOT the actual trace
+
+	return HitResult;
 }
 
 void ACpp_Ch_K53sc::Ungrab()

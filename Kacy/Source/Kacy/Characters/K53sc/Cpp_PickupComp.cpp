@@ -10,6 +10,7 @@ UCpp_PickupComp::UCpp_PickupComp() :
 	NumberOfHeldItems(0),
 	bHasItemInHand(false),
 	bHasItemOnBack(false),
+	bItemIsPickupable(false),
 	NumberOfItemsHeld(0)
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -29,46 +30,40 @@ void UCpp_PickupComp::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UCpp_PickupComp::PickupItem()
+void UCpp_PickupComp::PickupItem(AActor* ItemToPickup)
 {
-	if(!bHasItemInHand && !ItemInHand && NumberOfItemsHeld < 1)
+	bItemIsPickupable = ItemToPickup->ActorHasTag("Pickupable");
+	if (bItemIsPickupable)
 	{
-		InspectionComponent->bTraceHitActor = false;
-		InspectionComponent->bItemIsInspectable = false;
-		USkeletalMeshComponent* SkMesh = Cast<USkeletalMeshComponent>(K53sc->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
-		
-		InspectionComponent->InspectedItem->SetActorEnableCollision(false);
-		InspectionComponent->InspectedItem->SetActorScale3D(InspectionComponent->ItemOriginalTransform.GetScale3D());
+		if (!bHasItemInHand && !ItemInHand && NumberOfItemsHeld < 1)
+		{
+			AttachItemToSocket(ItemToPickup, "RHandSocket");
 
-		FAttachmentTransformRules AttachRules = AttachRules.SnapToTargetNotIncludingScale;
-		InspectionComponent->InspectedItem->AttachToComponent(SkMesh, AttachRules, "RHandSocket");
+			ItemInHand = ItemToPickup;
+			bHasItemInHand = true;
+			NumberOfItemsHeld++;
+		}
+		else if (!bHasItemOnBack && !ItemOnBack && NumberOfItemsHeld < 2)
+		{
+			AttachItemToSocket(ItemToPickup, "BackSocket");
 
-		bHasItemInHand = true;
-		InspectionComponent->bIsCurrentlyInspectingItem = false;
-		ItemInHand = InspectionComponent->InspectedItem;
-		NumberOfItemsHeld++;
+			ItemOnBack = ItemToPickup;
+			bHasItemOnBack = true;
+			NumberOfItemsHeld++;
+		}
+		else if (NumberOfItemsHeld == 2)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("CAN'T PICKUP ANYTHING ANYMORE!"))
+		}
 	}
-	else if (!bHasItemOnBack && !ItemOnBack && NumberOfItemsHeld < 2)
-	{
-		InspectionComponent->bTraceHitActor = false;
-		InspectionComponent->bItemIsInspectable = false;
-		USkeletalMeshComponent* SkMesh = Cast<USkeletalMeshComponent>(K53sc->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+}
 
-		InspectionComponent->InspectedItem->SetActorEnableCollision(false);
-		InspectionComponent->InspectedItem->SetActorScale3D(InspectionComponent->ItemOriginalTransform.GetScale3D());
-
-		FAttachmentTransformRules AttachRules = AttachRules.SnapToTargetNotIncludingScale;
-		InspectionComponent->InspectedItem->AttachToComponent(SkMesh, AttachRules, "BackSocket");
-
-		bHasItemOnBack = true;
-		InspectionComponent->bIsCurrentlyInspectingItem = false;
-		ItemOnBack = InspectionComponent->InspectedItem;
-		NumberOfItemsHeld++;
-	}
-	else if (NumberOfItemsHeld == 2)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CAN'T PICKUP ANYTHING ANYMORE!"))
-	}
+void UCpp_PickupComp::AttachItemToSocket(AActor* ItemToPickup, FName SocketName)
+{
+	USkeletalMeshComponent* SkMesh = Cast<USkeletalMeshComponent>(K53sc->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
+	FAttachmentTransformRules AttachRules = AttachRules.SnapToTargetNotIncludingScale;
+	ItemToPickup->AttachToComponent(SkMesh, AttachRules, SocketName);
+	ItemToPickup->SetActorEnableCollision(false);
 }
 
 void UCpp_PickupComp::DropItem()
