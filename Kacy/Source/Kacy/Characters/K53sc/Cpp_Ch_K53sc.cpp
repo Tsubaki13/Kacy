@@ -7,15 +7,14 @@
 #include "Classes/GameFramework/CharacterMovementComponent.h"
 #include "Cpp_InspectionComp.h"
 #include "Cpp_PickupComp.h"
+#include "Cpp_PushComponent.h"
 #include "Classes/GameFramework/Actor.h"
 //#include "Public/DrawDebugHelpers.h"
 
-// Sets default values
 ACpp_Ch_K53sc::ACpp_Ch_K53sc()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// creating default components and setting some of their properties as needed:
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>("CameraBoom");
 	SkelMesh = GetMesh();
 	CameraBoom->SetupAttachment(SkelMesh);
@@ -43,7 +42,6 @@ void ACpp_Ch_K53sc::Tick(float DeltaTime)
 		bIsCurrentlyFalling = ACharacter::GetCharacterMovement()->IsFalling();
 		AnimInstance->bIsFalling = bIsCurrentlyFalling;
 		AnimInstance->bIsInspecting = InspectionComponent->bIsCurrentlyInspectingItem;
-		//UE_LOG(LogTemp, Warning, TEXT("speed: %f / %s"), AnimInstance->Speed, (AnimInstance->bIsFalling ? TEXT("is falling") : TEXT("is NOT falling")))
 	}
 	else
 	{
@@ -79,6 +77,11 @@ void ACpp_Ch_K53sc::SetPickupCompRef(UCpp_PickupComp* PickupComponentToSet)
 	PickupComponent = PickupComponentToSet;
 }
 
+void ACpp_Ch_K53sc::SetPushCompRef(UCpp_PushComponent* PushComponentToSet)
+{
+	PushComponent = PushComponentToSet;
+}
+
 void ACpp_Ch_K53sc::MoveForward(float Amount)
 {
 	if (InspectionComponent && !InspectionComponent->InspectedItem)
@@ -107,7 +110,9 @@ void ACpp_Ch_K53sc::MoveRight(float Amount)
 
 void ACpp_Ch_K53sc::LookUp(float Amount)
 {
-	if(InspectionComponent && !InspectionComponent->InspectedItem)
+	if(InspectionComponent && PushComponent
+		&& !InspectionComponent->InspectedItem
+		&& !PushComponent->bIsPushing)
 	{
 		AddControllerPitchInput(Amount);
 	}
@@ -115,7 +120,9 @@ void ACpp_Ch_K53sc::LookUp(float Amount)
 
 void ACpp_Ch_K53sc::Turn(float Amount)
 {
-	if(InspectionComponent && !InspectionComponent->InspectedItem)
+	if(InspectionComponent && PushComponent
+		&& !InspectionComponent->InspectedItem
+		&& !PushComponent->bIsPushing)
 	{
 		AddControllerYawInput(Amount);
 	}
@@ -186,6 +193,11 @@ void ACpp_Ch_K53sc::Grab()
 	}
 }
 
+void ACpp_Ch_K53sc::Ungrab()
+{
+	OnUngrabItem.Broadcast();
+}
+
 FHitResult ACpp_Ch_K53sc::LookForActor()
 {
 	FHitResult HitResult;
@@ -200,11 +212,6 @@ FHitResult ACpp_Ch_K53sc::LookForActor()
 	//DrawDebugLine(GetWorld(), PlayerViewLoc, InteractLineEnd, FColor(255, 0, 0), false, 2.f, 0.f, 5.f); // drawing debug line only. NOT the actual trace
 
 	return HitResult;
-}
-
-void ACpp_Ch_K53sc::Ungrab()
-{
-	OnUngrabItem.Broadcast();
 }
 
 void ACpp_Ch_K53sc::DropItem()

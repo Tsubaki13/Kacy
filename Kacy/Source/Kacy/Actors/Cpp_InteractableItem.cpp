@@ -4,18 +4,30 @@
 
 ACpp_InteractableItem::ACpp_InteractableItem() :
 	bIsInspectable(false),
-	bIsPickupable(false)
+	bIsPickupable(false),
+	bIsPushable(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
+
 }
 
 void ACpp_InteractableItem::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetActorProperties();
+}
+
+void ACpp_InteractableItem::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void ACpp_InteractableItem::SetActorProperties()
+{
 	if(bIsInspectable && !(this->Tags.Contains("Inspectable")))
 	{
-			this->Tags.Add("Inspectable");
+		this->Tags.Add("Inspectable");
 	}
 	else
 	{
@@ -36,9 +48,16 @@ void ACpp_InteractableItem::BeginPlay()
 			this->Tags.Remove("Pickupable");
 		}
 	}
-}
 
-void ACpp_InteractableItem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+	if(bIsPushable && !(this->Tags.Contains("Pushable")))
+	{
+		this->Tags.Add("Pushable");
+	}
+	else
+	{
+		if(!bIsPushable)
+		{
+			this->Tags.Remove("Pushable");
+		}
+	}
 }

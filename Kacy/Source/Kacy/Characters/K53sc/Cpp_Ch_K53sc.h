@@ -10,6 +10,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGrabDelegate); // event dispatcher created t
 
 class UCpp_InspectionComp; // declaration of the inspection component class
 class UCpp_PickupComp; // declaration of the pickup component class
+class UCpp_PushComponent; // declaration of the push component class
 
 UCLASS()
 class KACY_API ACpp_Ch_K53sc : public ACharacter
@@ -34,8 +35,10 @@ public:
 		class UCameraComponent* FirstPersonCam;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
 		UCpp_InspectionComp* InspectionComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Pickup")
 		UCpp_PickupComp* PickupComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Pushing")
+		UCpp_PushComponent* PushComponent;
 
 	// the following UPROPERTYs are of the type FGrabDelegate which is the event dispatcher created at the top of this file. they will be broadcasted to blueprint
 	UPROPERTY(BlueprintAssignable, Category = "Kacy - Grab")
@@ -47,6 +50,8 @@ public:
 		void SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet);
 	UFUNCTION(BlueprintCallable, Category = "Kacy - Item Pickup") // this method is called to set a reference to the PickupComponent that is added to the bp
 		void SetPickupCompRef(UCpp_PickupComp* PickupComponentToSet);
+	UFUNCTION(BlueprintCallable, Category = "Kacy - Item Pushing") // this method is called to set a reference to the PushComponent that is added to the bp
+		void SetPushCompRef(UCpp_PushComponent* PushComponentToSet);
 
 	// the following variables will be used to set the values in the animation instance from which the animation blueprint inherits
 	FVector CurrentVelocity;
@@ -64,8 +69,7 @@ private:
 	void Ungrab();
 	void DropItem();
 
-	// helper functions
-	FHitResult LookForActor();
+	FHitResult LookForActor(); // helper function
 
 	USkeletalMeshComponent* SkelMesh; // a reference to the skeletal mesh
 	class UCppAnim_K53sc* AnimInstance; // a reference to the animation instance class, from which the animation blueprint inherits
