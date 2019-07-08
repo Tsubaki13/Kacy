@@ -11,6 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FGrabDelegate); // event dispatcher created t
 class UCpp_InspectionComp; // declaration of the inspection component class
 class UCpp_PickupComp; // declaration of the pickup component class
 class UCpp_PushComponent; // declaration of the push component class
+class ACpp_InteractableItem;
 
 UCLASS()
 class KACY_API ACpp_Ch_K53sc : public ACharacter
@@ -68,6 +69,8 @@ private:
 	void Grab();
 	void Ungrab();
 	void DropItem();
+	void ZoomIn();
+	void ZoomOut();
 
 	FHitResult LookForActor(); // helper function
 

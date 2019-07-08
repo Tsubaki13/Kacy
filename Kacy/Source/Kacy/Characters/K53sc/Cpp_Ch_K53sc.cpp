@@ -8,6 +8,7 @@
 #include "Cpp_InspectionComp.h"
 #include "Cpp_PickupComp.h"
 #include "Cpp_PushComponent.h"
+#include "Actors/Cpp_InteractableItem.h"
 #include "Classes/GameFramework/Actor.h"
 //#include "Public/DrawDebugHelpers.h"
 
@@ -65,36 +66,38 @@ void ACpp_Ch_K53sc::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Grab", IE_Pressed, this, &ACpp_Ch_K53sc::Grab);
 	PlayerInputComponent->BindAction("Grab", IE_Released, this, &ACpp_Ch_K53sc::Ungrab);
 	PlayerInputComponent->BindAction("DropItem", IE_Released, this, &ACpp_Ch_K53sc::DropItem);
+	PlayerInputComponent->BindAction("ZoomIn", IE_Pressed, this, &ACpp_Ch_K53sc::ZoomIn);
+	PlayerInputComponent->BindAction("ZoomOut", IE_Pressed, this, &ACpp_Ch_K53sc::ZoomOut);
 }
 
 void ACpp_Ch_K53sc::SetInspectionCompRef(UCpp_InspectionComp* InspectionComponentToSet)
 {
 	InspectionComponent = InspectionComponentToSet;
 }
-
 void ACpp_Ch_K53sc::SetPickupCompRef(UCpp_PickupComp* PickupComponentToSet)
 {
 	PickupComponent = PickupComponentToSet;
 }
-
 void ACpp_Ch_K53sc::SetPushCompRef(UCpp_PushComponent* PushComponentToSet)
 {
 	PushComponent = PushComponentToSet;
 }
-
 void ACpp_Ch_K53sc::MoveForward(float Amount)
 {
-	if (InspectionComponent && !InspectionComponent->InspectedItem)
+	if(InspectionComponent && !InspectionComponent->InspectedItem)
 	{
 		AddMovementInput(GetActorForwardVector(), Amount);
 	}
-	else if (InspectionComponent && InspectionComponent->bItemIsInspectable && (Amount > 0) || (Amount < 0))
+	else if(InspectionComponent && InspectionComponent->bItemIsInspectable && (Amount > 0) || (Amount < 0))
 	{
-		FRotator InspectionRotation = FRotator(-Amount * .5f, 0.f, 0.f);
-		InspectionComponent->InspectedItem->AddActorWorldRotation(InspectionRotation, false);
+		InspectionComponent->RotateInspectedItem(Amount, true);
+	}
+	
+	if(PushComponent && PushComponent->bIsPushing)
+	{
+		PushComponent->MovePushedItem(Amount);
 	}
 }
-
 void ACpp_Ch_K53sc::MoveRight(float Amount)
 {
 	if(InspectionComponent && !InspectionComponent->InspectedItem)
@@ -103,31 +106,25 @@ void ACpp_Ch_K53sc::MoveRight(float Amount)
 	}
 	else if(InspectionComponent && InspectionComponent->bItemIsInspectable && (Amount > 0) || (Amount < 0))
 	{
-		FRotator InspectionRotation = FRotator(0.f, -Amount * .5f, 0.f);
-		InspectionComponent->InspectedItem->AddActorWorldRotation(InspectionRotation, false);
+		InspectionComponent->RotateInspectedItem(Amount, false);
 	}
 }
-
 void ACpp_Ch_K53sc::LookUp(float Amount)
 {
 	if(InspectionComponent && PushComponent
-		&& !InspectionComponent->InspectedItem
-		&& !PushComponent->bIsPushing)
+		&& !InspectionComponent->InspectedItem)
 	{
 		AddControllerPitchInput(Amount);
 	}
 }
-
 void ACpp_Ch_K53sc::Turn(float Amount)
 {
 	if(InspectionComponent && PushComponent
-		&& !InspectionComponent->InspectedItem
-		&& !PushComponent->bIsPushing)
+		&& !InspectionComponent->InspectedItem)
 	{
 		AddControllerYawInput(Amount);
 	}
 }
-
 void ACpp_Ch_K53sc::PerformJump()
 {
 	if(InspectionComponent && !InspectionComponent->InspectedItem)
@@ -135,7 +132,6 @@ void ACpp_Ch_K53sc::PerformJump()
 		Jump();
 	}
 }
-
 void ACpp_Ch_K53sc::Interact()
 {
 	if (!bIsCurrentlyFalling)
@@ -156,11 +152,11 @@ void ACpp_Ch_K53sc::Interact()
 				InspectionComponent->RestoreItemTransform(InspectionComponent->ItemOriginalTransform);
 				InspectionComponent->InspectedItem = nullptr;
 				InspectionComponent->bItemIsInspectable = false;
+				InspectionComponent->InspectedItemDistanceFromCam = 100;
 			}
 		}
 	}
 }
-
 void ACpp_Ch_K53sc::Grab()
 {
 	if(!bIsCurrentlyFalling)
@@ -192,10 +188,47 @@ void ACpp_Ch_K53sc::Grab()
 		}
 	}
 }
-
 void ACpp_Ch_K53sc::Ungrab()
 {
 	OnUngrabItem.Broadcast();
+}
+void ACpp_Ch_K53sc::DropItem()
+{
+	if (PickupComponent)
+	{
+		if (InspectionComponent && !InspectionComponent->bIsCurrentlyInspectingItem && !bIsCurrentlyFalling)
+		{
+			PickupComponent->DropItem();
+		}
+	}
+}
+void ACpp_Ch_K53sc::ZoomIn()
+{
+	if(InspectionComponent && InspectionComponent->bIsCurrentlyInspectingItem && InspectionComponent->InspectedItemDistanceFromCam > 35)
+	{
+		InspectionComponent->InspectedItemDistanceFromCam -= 3;
+
+		FVector PlayerViewLoc, InspectedItemLoc;
+		FRotator PlayerViewRot;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot);
+		InspectedItemLoc = PlayerViewLoc + (PlayerViewRot.Vector() * InspectionComponent->InspectedItemDistanceFromCam);
+
+		InspectionComponent->InspectedItem->SetActorLocation(InspectedItemLoc);
+	}
+}
+void ACpp_Ch_K53sc::ZoomOut()
+{
+	if(InspectionComponent && InspectionComponent->bIsCurrentlyInspectingItem && InspectionComponent->InspectedItemDistanceFromCam < 200)
+	{
+		InspectionComponent->InspectedItemDistanceFromCam += 3;
+
+		FVector PlayerViewLoc, InspectedItemLoc;
+		FRotator PlayerViewRot;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerViewLoc, PlayerViewRot);
+		InspectedItemLoc = PlayerViewLoc + (PlayerViewRot.Vector() * InspectionComponent->InspectedItemDistanceFromCam);
+
+		InspectionComponent->InspectedItem->SetActorLocation(InspectedItemLoc);
+	}
 }
 
 FHitResult ACpp_Ch_K53sc::LookForActor()
@@ -212,15 +245,4 @@ FHitResult ACpp_Ch_K53sc::LookForActor()
 	//DrawDebugLine(GetWorld(), PlayerViewLoc, InteractLineEnd, FColor(255, 0, 0), false, 2.f, 0.f, 5.f); // drawing debug line only. NOT the actual trace
 
 	return HitResult;
-}
-
-void ACpp_Ch_K53sc::DropItem()
-{
-	if (PickupComponent)
-	{
-		if (InspectionComponent && !InspectionComponent->bIsCurrentlyInspectingItem && !bIsCurrentlyFalling)
-		{
-			PickupComponent->DropItem();
-		}
-	}
 }

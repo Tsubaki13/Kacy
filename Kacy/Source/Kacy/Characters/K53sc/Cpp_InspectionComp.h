@@ -24,7 +24,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
 		int32 InspectionTraceRange; // how far should the trace looking for objects extend
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Kacy - Item Inspection")
 		int32 InspectedItemDistanceFromCam; // how far the object is from camera while inspecting
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Inspection")
 		float InspectionScreenSize; // this is the factor used in calculating the scale of the inspected item as it appears on screen while being inspected
@@ -44,8 +44,11 @@ public:
 	void SetItemInspectionTransform(); // bring the item close to the camera if the interaction trace hits something
 	FVector SetItemScale(); // calculates the scale and feeds it into the previous function
 	void RestoreItemTransform(FTransform ItemOriginalTransform); // restore the item to its original transform after inspecting it
-	bool bIsCurrentlyInspectingItem;
 	void SetInspectedItem(AActor *ItemToInspect);
+	void RotateInspectedItem(float Amount, bool bRotateUpwards);
+
+	bool bIsCurrentlyInspectingItem;
+	ACpp_Ch_K53sc* K53sc;
 
 	UWorld* MyWorld = GetWorld(); // a reference to the world
 };

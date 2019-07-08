@@ -18,7 +18,7 @@ public:
 	UCpp_PushComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Pushing") // this value is set in the blueprint that inherits from this class
-		float WalkSpeedWhenPushing;
+		float WalkSpeedWhilePushing;
 	
 	bool bIsPushing;
 
@@ -27,12 +27,13 @@ protected:
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	ACpp_InteractableItem* PushedItem;
+	void MovePushedItem(float Amount);
 
 private:
-	AActor* PushedItem;
+	// AActor* PushedItem;
 	ACpp_Ch_K53sc* K53sc;
 	float NormalWalkSpeed;
-	ACpp_InteractableItem* ItemHit;
 
 	UFUNCTION()
 		void GrabPushable();

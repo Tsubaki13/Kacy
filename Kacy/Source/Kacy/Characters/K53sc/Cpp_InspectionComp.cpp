@@ -97,6 +97,20 @@ void UCpp_InspectionComp::SetInspectedItem(AActor* ItemToInspect)
 	InspectedItem = ItemToInspect;
 }
 
+void UCpp_InspectionComp::RotateInspectedItem(float Amount, bool bRotateUpwards)
+{
+	if (bRotateUpwards)
+	{
+		FRotator InspectionRotation = FRotator(-Amount * .5f, 0.f, 0.f);
+		InspectedItem->AddActorLocalRotation(InspectionRotation, false);
+	}
+	else
+	{
+		FRotator InspectionRotation = FRotator(0.f, -Amount * .5f, 0.f);
+		InspectedItem->AddActorLocalRotation(InspectionRotation, false);
+	}
+}
+
 FVector UCpp_InspectionComp::SetItemScale()
 {
 	ACpp_Ch_K53sc* K53sc = Cast<ACpp_Ch_K53sc>(GetWorld()->GetFirstPlayerController()->GetPawn());

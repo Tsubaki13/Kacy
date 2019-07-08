@@ -6,6 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "Cpp_InteractableItem.generated.h"
 
+class ACpp_Ch_K53sc;
+class UArrowComponent;
+class UStaticMeshComponent;
+class UBoxComponent;
+class UCpp_InspectionComp;
+
 UCLASS()
 class KACY_API ACpp_InteractableItem : public AActor
 {
@@ -21,6 +27,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Interactable") // this value is set in the blueprint that inherits from this class
 		bool bIsPushable;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UStaticMeshComponent* StMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UArrowComponent* ArrowFront;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UArrowComponent* ArrowBack;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UArrowComponent* ArrowRight;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UArrowComponent* ArrowLeft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UBoxComponent* BoxColFront;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UBoxComponent* BoxColBack;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UBoxComponent* BoxColRight;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UBoxComponent* BoxColLeft;
+
+	UArrowComponent* CurrentArrow;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -28,5 +55,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	ACpp_Ch_K53sc* K53sc;
+
 	void SetActorProperties();
+	void BindOverlapEvents();
+
+	UFUNCTION()
+		void OnBoxOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void OnBoxOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UCpp_InspectionComp* InspectionComp;
 };

@@ -5,7 +5,8 @@
 #include "Characters/K53sc/Cpp_Ch_K53sc.h"
 #include "Actors/Cpp_InteractableItem.h"
 #include "Classes/GameFramework/CharacterMovementComponent.h"
-#include "Classes/Components//SkeletalMeshComponent.h"
+#include "Classes/Components/SkeletalMeshComponent.h"
+#include "Classes/Components/ArrowComponent.h"
 
 UCpp_PushComponent::UCpp_PushComponent() :
 	bIsPushing(false)
@@ -30,6 +31,12 @@ void UCpp_PushComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+void UCpp_PushComponent::MovePushedItem(float Amount)
+{
+	FVector PushOffset = PushedItem->CurrentArrow->GetForwardVector() * Amount * .5f;
+	PushedItem->AddActorWorldOffset(PushOffset, true);
+}
+
 void UCpp_PushComponent::GrabPushable()
 {
 	FHitResult HitResult;
@@ -38,15 +45,11 @@ void UCpp_PushComponent::GrabPushable()
 	{
 		if(HitResult.GetActor()->ActorHasTag("Pushable"))
 		{
-			ItemHit = Cast<ACpp_InteractableItem>(HitResult.GetActor());
+			PushedItem = Cast<ACpp_InteractableItem>(HitResult.GetActor());
 
-			if(ItemHit->bIsPushable)
+			if(PushedItem->bIsPushable)
 			{
-				USkeletalMeshComponent* SkMesh = Cast<USkeletalMeshComponent>(K53sc->GetComponentByClass(USkeletalMeshComponent::StaticClass()));
-
-				K53sc->GetCharacterMovement()->MaxWalkSpeed = WalkSpeedWhenPushing;
-				FAttachmentTransformRules AttachRules = AttachRules.KeepWorldTransform;
-				ItemHit->AttachToComponent(SkMesh, AttachRules, "RootSocket");
+				K53sc->GetCharacterMovement()->MaxWalkSpeed = WalkSpeedWhilePushing;
 				bIsPushing = true;
 			}
 		}
@@ -55,12 +58,9 @@ void UCpp_PushComponent::GrabPushable()
 
 void UCpp_PushComponent::UngrabPushable()
 {
-	if (ItemHit)
+	if (PushedItem)
 	{
 		K53sc->GetCharacterMovement()->MaxWalkSpeed = NormalWalkSpeed;
-		FDetachmentTransformRules DetachRules = DetachRules.KeepWorldTransform;
-		ItemHit->DetachFromActor(DetachRules);
-		ItemHit = nullptr;
 		bIsPushing = false;
 	}
 }
