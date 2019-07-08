@@ -33,8 +33,11 @@ void UCpp_PushComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 void UCpp_PushComponent::MovePushedItem(float Amount)
 {
-	FVector PushOffset = PushedItem->CurrentArrow->GetForwardVector() * Amount * .5f;
-	PushedItem->AddActorWorldOffset(PushOffset, true);
+	if (PushedItem->CurrentArrow)
+	{
+		FVector PushOffset = PushedItem->CurrentArrow->GetForwardVector() * Amount * .5f;
+		PushedItem->AddActorWorldOffset(PushOffset, true);
+	}
 }
 
 void UCpp_PushComponent::GrabPushable()
@@ -47,7 +50,7 @@ void UCpp_PushComponent::GrabPushable()
 		{
 			PushedItem = Cast<ACpp_InteractableItem>(HitResult.GetActor());
 
-			if(PushedItem->bIsPushable)
+			if(PushedItem->bIsPushable && PushedItem->CurrentArrow)
 			{
 				K53sc->GetCharacterMovement()->MaxWalkSpeed = WalkSpeedWhilePushing;
 				bIsPushing = true;
@@ -62,6 +65,8 @@ void UCpp_PushComponent::UngrabPushable()
 	{
 		K53sc->GetCharacterMovement()->MaxWalkSpeed = NormalWalkSpeed;
 		bIsPushing = false;
+		PushedItem->CurrentArrow = nullptr;
+		PushedItem = nullptr;
 	}
 }
 

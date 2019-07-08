@@ -114,7 +114,7 @@ void ACpp_InteractableItem::BindOverlapEvents()
 
 void ACpp_InteractableItem::OnBoxOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(InspectionComp && !InspectionComp->bIsCurrentlyInspectingItem)
+	if(InspectionComp && !InspectionComp->bIsCurrentlyInspectingItem && bIsPushable)
 	{
 		if(OtherActor && OtherComp && OtherActor != this && OverlappedComp == BoxColFront)
 		{
