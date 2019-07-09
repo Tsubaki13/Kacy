@@ -3,19 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
-#include "Cpp_GM_Kacy.generated.h"
+#include "GameFramework/Actor.h"
+#include "Cpp_FuseBox.generated.h"
 
-class ACpp_FuseBox;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPowerDelegate);
 
 UCLASS()
-class KACY_API ACpp_GM_Kacy : public AGameModeBase
+class KACY_API ACpp_FuseBox : public AActor
 {
 	GENERATED_BODY()
-
-public:
-	void BeginPlay();
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Kacy - Fuse Box")
-		ACpp_FuseBox* FuseBox;
+public:	
+	ACpp_FuseBox();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:	
+	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(BlueprintAssignable, Category = "Kacy - Fuse Box")
+		FPowerDelegate OnPowerOn;
 };

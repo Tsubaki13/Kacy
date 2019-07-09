@@ -10,6 +10,7 @@
 #include "Cpp_PushComponent.h"
 #include "Actors/Cpp_InteractableItem.h"
 #include "Classes/GameFramework/Actor.h"
+#include "Classes/Components/ArrowComponent.h"
 //#include "Public/DrawDebugHelpers.h"
 
 ACpp_Ch_K53sc::ACpp_Ch_K53sc()
@@ -51,6 +52,11 @@ void ACpp_Ch_K53sc::Tick(float DeltaTime)
 			UE_LOG(LogTemp, Warning, TEXT("SkelMesh ref missing"))
 		if(!AnimInstance)
 			UE_LOG(LogTemp, Warning, TEXT("AnimInstance ref missing"))
+	}
+
+	if(PushComponent && PushComponent->PushedItem && PushComponent->PushedItem->CurrentArrow && PushComponent->bIsPushing)
+	{
+		this->SetActorRotation(PushComponent->PushedItem->CurrentArrow->GetForwardVector().Rotation());
 	}
 }
 
@@ -128,7 +134,9 @@ void ACpp_Ch_K53sc::Turn(float Amount)
 }
 void ACpp_Ch_K53sc::PerformJump()
 {
-	if(InspectionComponent && !InspectionComponent->InspectedItem)
+	if(InspectionComponent && PushComponent
+		&& !InspectionComponent->InspectedItem
+		&& !PushComponent->bIsPushing)
 	{
 		Jump();
 	}
