@@ -19,6 +19,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Pushing") // this value is set in the blueprint that inherits from this class
 		float WalkSpeedWhilePushing;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Item Pushing") // this value is set in the blueprint that inherits from this class
+		float PushedItemMovementSpeedFactor;
 	
 	bool bIsPushing;
 

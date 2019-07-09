@@ -43,6 +43,7 @@ void ACpp_Ch_K53sc::Tick(float DeltaTime)
 		bIsCurrentlyFalling = ACharacter::GetCharacterMovement()->IsFalling();
 		AnimInstance->bIsFalling = bIsCurrentlyFalling;
 		AnimInstance->bIsInspecting = InspectionComponent->bIsCurrentlyInspectingItem;
+		AnimInstance->bIsPushing = PushComponent->bIsPushing;
 	}
 	else
 	{

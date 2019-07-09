@@ -19,4 +19,6 @@ public:
 		bool bIsFalling;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimationVariables")
 		bool bIsInspecting;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimationVariables")
+		bool bIsPushing;
 };

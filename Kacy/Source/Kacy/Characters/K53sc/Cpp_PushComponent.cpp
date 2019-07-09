@@ -9,6 +9,7 @@
 #include "Classes/Components/ArrowComponent.h"
 
 UCpp_PushComponent::UCpp_PushComponent() :
+	PushedItemMovementSpeedFactor(.5f),
 	bIsPushing(false)
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -35,7 +36,7 @@ void UCpp_PushComponent::MovePushedItem(float Amount)
 {
 	if (PushedItem->CurrentArrow)
 	{
-		FVector PushOffset = PushedItem->CurrentArrow->GetForwardVector() * Amount * .5f;
+		FVector PushOffset = PushedItem->CurrentArrow->GetForwardVector() * Amount * PushedItemMovementSpeedFactor;
 		PushedItem->AddActorWorldOffset(PushOffset, true);
 	}
 }
