@@ -7,6 +7,7 @@
 #include "Cpp_InspectionComp.generated.h"
 
 class ACpp_Ch_K53sc;
+class UWidgetComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable )
 class KACY_API UCpp_InspectionComp : public UActorComponent
@@ -49,6 +50,8 @@ public:
 
 	bool bIsCurrentlyInspectingItem;
 	ACpp_Ch_K53sc* K53sc;
+
+	UWidgetComponent* InteractableItemIcon;
 
 	UWorld* MyWorld = GetWorld(); // a reference to the world
 };

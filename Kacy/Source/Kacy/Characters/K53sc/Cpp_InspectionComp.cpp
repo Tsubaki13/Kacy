@@ -5,6 +5,7 @@
 #include "Classes/Components/CapsuleComponent.h"
 #include "Classes/Components/StaticMeshComponent.h"
 #include "Public/Math/BoxSphereBounds.h"
+#include "Public/Components/WidgetComponent.h"
 // #include "Public/DrawDebugHelpers.h"
 
 UCpp_InspectionComp::UCpp_InspectionComp() :
@@ -35,6 +36,12 @@ void UCpp_InspectionComp::InspectItem()
 		bIsCurrentlyInspectingItem = true;		
 		ItemOriginalTransform = InspectedItem->GetTransform();
 		SetItemInspectionTransform();
+
+		InteractableItemIcon = Cast<UWidgetComponent>(InspectedItem->GetComponentByClass(UWidgetComponent::StaticClass()));
+		if (InteractableItemIcon)
+		{
+			InteractableItemIcon->SetVisibility(false);
+		}
 	}
 }
 
@@ -88,6 +95,11 @@ void UCpp_InspectionComp::RestoreItemTransform(FTransform ItemOriginalTransform)
 	{
 		bIsCurrentlyInspectingItem = false;
 		MoveItemToOriginalLoc();
+		
+		if(InteractableItemIcon)
+		{
+			InteractableItemIcon->SetVisibility(true);
+		}
 	}
 }
 

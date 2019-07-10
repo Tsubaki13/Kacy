@@ -11,6 +11,7 @@ class UArrowComponent;
 class UStaticMeshComponent;
 class UBoxComponent;
 class UCpp_InspectionComp;
+class UWidgetComponent;
 
 UCLASS()
 class KACY_API ACpp_InteractableItem : public AActor
@@ -45,6 +46,8 @@ public:
 		UBoxComponent* BoxColRight;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
 		UBoxComponent* BoxColLeft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
+		UWidgetComponent* IconWidget;
 
 	UArrowComponent* CurrentArrow;
 
@@ -57,8 +60,11 @@ public:
 private:
 	ACpp_Ch_K53sc* K53sc;
 
+	void SetComponentsProperties();
 	void SetActorProperties();
 	void BindOverlapEvents();
+	void SetIconRotation();
+	void SetIconSize();
 
 	UFUNCTION()
 		void OnBoxOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -66,4 +72,7 @@ private:
 		void OnBoxOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UCpp_InspectionComp* InspectionComp;
+
+	FVector  IconCurrentLoc, PlayerCamLoc;
+	FRotator PlayerCamRot;
 };

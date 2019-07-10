@@ -6,36 +6,34 @@
 #include "Characters/K53sc/Cpp_Ch_K53sc.h"
 #include "Classes/GameFramework/CharacterMovementComponent.h"
 #include "Characters/K53sc/Cpp_InspectionComp.h"
+#include "Public/Components/WidgetComponent.h"
+#include "Classes/Kismet/KismetMathLibrary.h"
 
 ACpp_InteractableItem::ACpp_InteractableItem() :
 	bIsInspectable(false),
 	bIsPickupable(false),
 	bIsPushable(false)
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	StMesh = CreateDefaultSubobject<UStaticMeshComponent>("StMesh");
 	SetRootComponent(StMesh);
 
 	ArrowFront = CreateDefaultSubobject<UArrowComponent>("ArrowFront");
-	ArrowFront->SetupAttachment(StMesh);
 	BoxColFront = CreateDefaultSubobject<UBoxComponent>("BoxColFront");
-	BoxColFront->SetupAttachment(ArrowFront);
 
 	ArrowBack = CreateDefaultSubobject<UArrowComponent>("ArrowBack");
-	ArrowBack->SetupAttachment(StMesh);
 	BoxColBack = CreateDefaultSubobject<UBoxComponent>("BoxColBack");
-	BoxColBack->SetupAttachment(ArrowBack);
 
 	ArrowRight = CreateDefaultSubobject<UArrowComponent>("ArrowRight");
-	ArrowRight->SetupAttachment(StMesh);
 	BoxColRight = CreateDefaultSubobject<UBoxComponent>("BoxColRight");
-	BoxColRight->SetupAttachment(ArrowRight);
 
 	ArrowLeft = CreateDefaultSubobject<UArrowComponent>("ArrowLeft");
-	ArrowLeft->SetupAttachment(StMesh);
 	BoxColLeft = CreateDefaultSubobject<UBoxComponent>("BoxColLeft");
-	BoxColLeft->SetupAttachment(ArrowLeft);
+
+	IconWidget = CreateDefaultSubobject<UWidgetComponent>("IconWidget");
+
+	SetComponentsProperties();
 }
 
 void ACpp_InteractableItem::BeginPlay()
@@ -47,11 +45,39 @@ void ACpp_InteractableItem::BeginPlay()
 
 	SetActorProperties();
 	BindOverlapEvents();
+
+	IconWidget->SetVisibility(false);
 }
 
 void ACpp_InteractableItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	SetIconRotation();
+	SetIconSize();
+}
+
+void ACpp_InteractableItem::SetComponentsProperties()
+{
+	ArrowFront->SetupAttachment(StMesh);
+	BoxColFront->SetupAttachment(ArrowFront);
+	BoxColFront->SetGenerateOverlapEvents(true);
+
+	ArrowBack->SetupAttachment(StMesh);
+	BoxColBack->SetupAttachment(ArrowBack);
+	BoxColBack->SetGenerateOverlapEvents(true);
+	
+	ArrowRight->SetupAttachment(StMesh);
+	BoxColRight->SetupAttachment(ArrowRight);
+	BoxColRight->SetGenerateOverlapEvents(true);
+	
+	ArrowLeft->SetupAttachment(StMesh);
+	BoxColLeft->SetupAttachment(ArrowLeft);
+	BoxColLeft->SetGenerateOverlapEvents(true);
+
+	IconWidget->SetupAttachment(StMesh);
+	IconWidget->SetWidgetSpace(EWidgetSpace::World);
+	IconWidget->RegisterComponent();
 }
 
 void ACpp_InteractableItem::SetActorProperties()
@@ -95,21 +121,31 @@ void ACpp_InteractableItem::SetActorProperties()
 
 void ACpp_InteractableItem::BindOverlapEvents()
 {
-	BoxColFront->SetGenerateOverlapEvents(true);
 	BoxColFront->OnComponentBeginOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapBegin);
 	BoxColFront->OnComponentEndOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapEnd);
 
-	BoxColBack->SetGenerateOverlapEvents(true);
 	BoxColBack->OnComponentBeginOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapBegin);
 	BoxColBack->OnComponentEndOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapEnd);
 
-	BoxColRight->SetGenerateOverlapEvents(true);
 	BoxColRight->OnComponentBeginOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapBegin);
 	BoxColRight->OnComponentEndOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapEnd);
 
-	BoxColLeft->SetGenerateOverlapEvents(true);
 	BoxColLeft->OnComponentBeginOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapBegin);
 	BoxColLeft->OnComponentEndOverlap.AddDynamic(this, &ACpp_InteractableItem::OnBoxOverlapEnd);
+}
+
+void ACpp_InteractableItem::SetIconRotation()
+{
+	FRotator IconFinalRot;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerCamLoc, PlayerCamRot);
+	IconCurrentLoc = IconWidget->GetComponentLocation();
+	IconFinalRot = UKismetMathLibrary::FindLookAtRotation(IconCurrentLoc, PlayerCamLoc);
+	IconWidget->SetRelativeRotation(IconFinalRot);
+}
+
+void ACpp_InteractableItem::SetIconSize()
+{
+	float DistanceToPlayer = (PlayerCamLoc - IconCurrentLoc).Size();
 }
 
 void ACpp_InteractableItem::OnBoxOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
