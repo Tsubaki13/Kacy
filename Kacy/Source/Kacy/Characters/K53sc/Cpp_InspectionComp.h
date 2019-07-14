@@ -48,7 +48,9 @@ public:
 	void SetInspectedItem(AActor *ItemToInspect);
 	void RotateInspectedItem(float Amount, bool bRotateUpwards);
 
-	bool bIsCurrentlyInspectingItem;
+	UPROPERTY(BlueprintReadOnly, Category = "Kacy - Item Inspection")
+		bool bIsCurrentlyInspectingItem;
+
 	ACpp_Ch_K53sc* K53sc;
 
 	UWidgetComponent* InteractableItemIcon;

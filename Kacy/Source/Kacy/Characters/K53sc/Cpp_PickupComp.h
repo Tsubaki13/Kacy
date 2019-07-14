@@ -31,6 +31,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Kacy - Pickupables")
 		void ItemPickedUp(AActor* PickedUpItem, bool bPicked);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kacy - Pickupables")
+		void DecreaseNumberOfBatteriesHeld();
+	UFUNCTION(BlueprintCallable, Category = "Kacy - Pickupables")
+		void RemoveBatteries(AActor* Battery);
+
+
 private:
 	UCpp_InspectionComp* InspectionComponent; // a reference to the inspection component
 
@@ -39,6 +45,8 @@ private:
 	
 	AActor* ItemInHand;
 	AActor* ItemOnBack;
+	AActor* Battery;
+
 	int32 NumberOfItemsHeld;
 	UWorld* MyWorld;
 	ACpp_Ch_K53sc* K53sc;

@@ -100,6 +100,27 @@ void UCpp_PickupComp::DropItem()
 	}
 }
 
+void UCpp_PickupComp::RemoveBatteries(AActor* Battery)
+{
+	if(ItemInHand && ItemInHand == Battery)
+	{
+		DecreaseNumberOfBatteriesHeld();
+		ItemInHand->Destroy();
+		ItemInHand = nullptr;
+		bHasItemInHand = false;
+		NumberOfItemsHeld--;
+	}
+
+	if(ItemOnBack && ItemOnBack == Battery)
+	{
+		DecreaseNumberOfBatteriesHeld();
+		ItemOnBack->Destroy();
+		ItemOnBack = nullptr;
+		bHasItemOnBack = false;
+		NumberOfItemsHeld--;
+	}
+}
+
 void UCpp_PickupComp::PlaceItemOnFloor(AActor* DroppedItem)
 {
 	FHitResult HitResult;
