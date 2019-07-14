@@ -12,7 +12,8 @@
 ACpp_InteractableItem::ACpp_InteractableItem() :
 	bIsInspectable(false),
 	bIsPickupable(false),
-	bIsPushable(false)
+	bIsPushable(false),
+	IconScaleFactor(1.f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -136,16 +137,22 @@ void ACpp_InteractableItem::BindOverlapEvents()
 
 void ACpp_InteractableItem::SetIconRotation()
 {
-	FRotator IconFinalRot;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerCamLoc, PlayerCamRot);
 	IconCurrentLoc = IconWidget->GetComponentLocation();
-	IconFinalRot = UKismetMathLibrary::FindLookAtRotation(IconCurrentLoc, PlayerCamLoc);
-	IconWidget->SetRelativeRotation(IconFinalRot);
+	FRotator XnYRot = UKismetMathLibrary::FindLookAtRotation(IconCurrentLoc, PlayerCamLoc);
+	FRotator IconFinalRot;
+	IconFinalRot = FRotator(XnYRot.Pitch, XnYRot.Yaw, 0.f);
+	IconWidget->SetWorldRotation(IconFinalRot);
 }
 
 void ACpp_InteractableItem::SetIconSize()
 {
 	float DistanceToPlayer = (PlayerCamLoc - IconCurrentLoc).Size();
+
+	if (DistanceToPlayer < 600)
+	{
+		IconWidget->SetDrawSize(FVector2D(DistanceToPlayer * IconScaleFactor, DistanceToPlayer * IconScaleFactor));
+	}
 }
 
 void ACpp_InteractableItem::OnBoxOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

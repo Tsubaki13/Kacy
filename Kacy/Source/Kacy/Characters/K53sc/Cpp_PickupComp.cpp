@@ -64,6 +64,8 @@ void UCpp_PickupComp::AttachItemToSocket(AActor* ItemToPickup, FName SocketName)
 	FAttachmentTransformRules AttachRules = AttachRules.SnapToTargetNotIncludingScale;
 	ItemToPickup->AttachToComponent(SkMesh, AttachRules, SocketName);
 	ItemToPickup->SetActorEnableCollision(false);
+
+	ItemPickedUp(ItemToPickup, true);
 }
 
 void UCpp_PickupComp::DropItem()
@@ -76,7 +78,6 @@ void UCpp_PickupComp::DropItem()
 		ItemInHand->DetachFromActor(DetachRules);
 		ItemInHand->SetActorEnableCollision(true);
 		PlaceItemOnFloor(ItemInHand);
-		ItemInHand = nullptr;
 		bHasItemInHand = false;
 
 		if (ItemOnBack && NumberOfItemsHeld == 2)
@@ -85,11 +86,16 @@ void UCpp_PickupComp::DropItem()
 			ItemOnBack->AttachToComponent(SkMesh, AttachRules, "RHandSocket");
 			bHasItemInHand = true;
 			ItemInHand = ItemOnBack;
+			ItemPickedUp(ItemOnBack, false);
 			ItemOnBack = nullptr;
 			bHasItemOnBack = false;
 			NumberOfItemsHeld--;
+
 			return;
 		}
+
+		ItemPickedUp(ItemInHand, false);
+		ItemInHand = nullptr;
 		NumberOfItemsHeld--;
 	}
 }

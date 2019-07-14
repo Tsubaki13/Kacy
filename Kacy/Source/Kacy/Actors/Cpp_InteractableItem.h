@@ -49,6 +49,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Basic Components")
 		UWidgetComponent* IconWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kacy - Icon Widget Variables")
+	float IconScaleFactor;
+	
 	UArrowComponent* CurrentArrow;
 
 protected:

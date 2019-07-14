@@ -29,6 +29,8 @@ public:
 	int32 NumberOfHeldItems;
 	bool bHasItemInHand, bHasItemOnBack, bItemIsPickupable;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Kacy - Pickupables")
+		void ItemPickedUp(AActor* PickedUpItem, bool bPicked);
 private:
 	UCpp_InspectionComp* InspectionComponent; // a reference to the inspection component
 
