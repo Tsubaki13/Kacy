@@ -63,7 +63,6 @@ public:
 private:
 	ACpp_Ch_K53sc* K53sc;
 
-	void SetComponentsProperties();
 	void SetActorProperties();
 	void BindOverlapEvents();
 	void SetIconRotation();

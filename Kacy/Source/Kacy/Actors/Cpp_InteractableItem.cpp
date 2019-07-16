@@ -34,7 +34,24 @@ ACpp_InteractableItem::ACpp_InteractableItem() :
 
 	IconWidget = CreateDefaultSubobject<UWidgetComponent>("IconWidget");
 
-	SetComponentsProperties();
+	ArrowFront->SetupAttachment(StMesh);
+	BoxColFront->SetupAttachment(ArrowFront);
+	BoxColFront->SetGenerateOverlapEvents(true);
+
+	ArrowBack->SetupAttachment(StMesh);
+	BoxColBack->SetupAttachment(ArrowBack);
+	BoxColBack->SetGenerateOverlapEvents(true);
+	
+	ArrowRight->SetupAttachment(StMesh);
+	BoxColRight->SetupAttachment(ArrowRight);
+	BoxColRight->SetGenerateOverlapEvents(true);
+	
+	ArrowLeft->SetupAttachment(StMesh);
+	BoxColLeft->SetupAttachment(ArrowLeft);
+	BoxColLeft->SetGenerateOverlapEvents(true);
+
+	IconWidget->SetupAttachment(StMesh);
+	IconWidget->SetWidgetSpace(EWidgetSpace::World);
 }
 
 void ACpp_InteractableItem::BeginPlay()
@@ -56,29 +73,6 @@ void ACpp_InteractableItem::Tick(float DeltaTime)
 
 	SetIconRotation();
 	SetIconSize();
-}
-
-void ACpp_InteractableItem::SetComponentsProperties()
-{
-	ArrowFront->SetupAttachment(StMesh);
-	BoxColFront->SetupAttachment(ArrowFront);
-	BoxColFront->SetGenerateOverlapEvents(true);
-
-	ArrowBack->SetupAttachment(StMesh);
-	BoxColBack->SetupAttachment(ArrowBack);
-	BoxColBack->SetGenerateOverlapEvents(true);
-	
-	ArrowRight->SetupAttachment(StMesh);
-	BoxColRight->SetupAttachment(ArrowRight);
-	BoxColRight->SetGenerateOverlapEvents(true);
-	
-	ArrowLeft->SetupAttachment(StMesh);
-	BoxColLeft->SetupAttachment(ArrowLeft);
-	BoxColLeft->SetGenerateOverlapEvents(true);
-
-	IconWidget->SetupAttachment(StMesh);
-	IconWidget->SetWidgetSpace(EWidgetSpace::World);
-	IconWidget->RegisterComponent();
 }
 
 void ACpp_InteractableItem::SetActorProperties()
